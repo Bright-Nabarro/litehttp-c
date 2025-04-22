@@ -1,0 +1,61 @@
+// message.def
+// 格式: 名称, 级别，描述
+
+// 对应到http_err
+// 基础函数错误
+HTTP_MSG(HTTP_SUCCESS, info, "Success")
+HTTP_MSG(HTTP_SOCKET_ERR, error, "Failed to create socket")
+HTTP_MSG(HTTP_SETSOCKETOPT_ERR, error, "Failed to set socket options")
+HTTP_MSG(HTTP_INET_PTON_ERR, error, "Failed to convert address from text to binary form")
+HTTP_MSG(HTTP_BIND_ERR, error, "Failed to bind socket to address")
+HTTP_MSG(HTTP_LISTEN_ERR, error, "Failed to listen on socket")
+HTTP_MSG(HTTP_ACCEPT_ERR, error, "Failed to accept incoming connection")
+HTTP_MSG(HTTP_SIGACTION_ERR, error, "Failed to set signal handler")
+HTTP_MSG(HTTP_PATH_ERR, error, "Invalid file or directory path")
+HTTP_MSG(HTTP_MALLOC_ERR, error, "Memory allocation error")
+HTTP_MSG(HTTP_REALLOC_ERR, error, "Memory reallocation error")
+HTTP_MSG(HTTP_FREAD_ERR, error, "File read error")
+HTTP_MSG(HTTP_READ_ERR, error, "Failed to read data from socket")
+HTTP_MSG(HTTP_WRITE_ERR, error, "Failed to write data to socket")
+HTTP_MSG(HTTP_CONFIG_ERR, error, "Failed to set toml_configure")
+HTTP_MSG(HTTP_FCNTL_F_GETFL_ERR, error, "Failed to get file status flags in fcntl")
+HTTP_MSG(HTTP_FCNTL_F_SETFL_ERR, error, "Failed to set file status flags in fcntl")
+HTTP_MSG(HTTP_EPOLL_CREATE_ERR, error, "Failed to create epoll fd")
+HTTP_MSG(HTTP_EPOLL_CTL_ADD_ERR, error, "Failed to add event in epoll ctl")
+HTTP_MSG(HTTP_EPOLL_CTL_DEL_ERR, error, "Failed to delete event in epoll ctl")
+HTTP_MSG(HTTP_EPOLL_WAIT_ERR, error, "Epoll wait error")
+// 配置错误
+HTTP_MSG(HTTP_UNSET_FATAL_ERR, error, "Critical configuration missing, program cannot continue running")
+HTTP_MSG(HTTP_UNSET_USE_DEFAULT, warn, "Configuration missing, using default value")
+HTTP_MSG(HTTP_UNSET_SERVER, error, "Failed read server configure")
+HTTP_MSG(HTTP_UNSET_CORE, error, "Failed to read core configure")
+HTTP_MSG(HTTP_UNSET_LOGGER, warn, "Failed read logger configure")
+HTTP_MSG(HTTP_THD_POOL_INI_ERR, error, "Failed to initialize thread pool")
+HTTP_MSG(HTTP_THD_POOL_DESTROY_ERR, error, "Failed to destroy thread pool")
+HTTP_MSG(HTTP_THD_POOL_THD_FN_ERR, error, "Thread %d (base on thread pool) error")
+HTTP_MSG(HTTP_THD_POOL_ADD_JOB_ERR, error, "Failed to add job to thread pool")
+// http解析错误
+HTTP_MSG(HTTP_PARSE_CANNOT_FIND_SPLIT, error, "Failed to find \\r\\n in http post")
+HTTP_MSG(HTTP_PARSE_CANNOT_FIND_SPACE, error, "Failed to fild split %c")
+HTTP_MSG(HTTP_REQUEST_UNKOWN_METHOD, error, "Client request an unkown method")
+HTTP_MSG(HTTP_REQUEST_VERSION_INVALID, error, "Client request http version is invalid")
+HTTP_MSG(HTTP_REQUEST_UNKOWN_HEADER, error, "Client request an unkown http header %s")
+
+// 警告
+HTTP_MSG(HTTP_UNSET_PORT, warn, "Failed to read port configure")
+HTTP_MSG(HTTP_UNSET_HOST, warn, "Failed to read host configure")
+HTTP_MSG(HTTP_UNSET_BASE_DIR, warn, "Failed to read base dir configure")
+HTTP_MSG(HTTP_UNSET_HANDLE_THREADS, warn, "Failed to read client handle threads configure")
+HTTP_MSG(HTTP_UNSET_LISTEN_QUE, warn, "Failed to read listen queue length configure")
+HTTP_MSG(HTTP_UNSET_MAX_EVENT, warn, "Failed to read max event configure")
+
+// 提示消息
+HTTP_MSG(HTTP_NEW_CLIENT_GREAT, info, "New connection from ip:%s port:%d")
+HTTP_MSG(HTTP_RECV_FROM_CLIENT, info, "Received from client: %s")
+HTTP_MSG(HTTP_START_LISTEN, info, "Http server start listening on %s %d")
+HTTP_MSG(HTTP_SIGNAL_TERMINAL, info, "Received signal %d, shutting down server")
+HTTP_MSG(HTTP_CLIENT_CLOSE, info, "Close connection %s:%d")
+
+// 调试消息
+HTTP_MSG(HTTP_REPORT_CLIENT_INFO, debug, "Handle client: %s:%d")
+

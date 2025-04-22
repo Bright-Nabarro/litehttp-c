@@ -1,0 +1,6 @@
+bin/
+**bin/
+.cache/
+build/
+*.out
+app
