@@ -4,7 +4,7 @@
 #include "string_t.h"
 #include <assert.h>
 #include <fcntl.h>
-#include <klib/khash.h>
+#include "klib/khash.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <sys/mman.h>

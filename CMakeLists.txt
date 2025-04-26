@@ -33,6 +33,9 @@ add_compile_options(
 	-Wuninitialized
 )
 
+# depend end
+
+add_subdirectory(extern)
 add_subdirectory(src)
 
 if (ENABLE_TEST)
