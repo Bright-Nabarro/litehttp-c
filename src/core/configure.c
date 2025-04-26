@@ -206,7 +206,7 @@ string_view_t get_host()
 	return string_view_from_string(&config_server.host);
 }
 
-string_view_t base_dir()
+string_view_t get_base_dir()
 {
 	return string_view_from_string(&config_server.base_dir);
 }

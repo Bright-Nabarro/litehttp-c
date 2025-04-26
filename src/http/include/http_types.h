@@ -24,12 +24,9 @@ typedef enum
 
 typedef enum
 {
-	http_hdr_host,
-	http_hdr_user_agent,
-	http_hdr_accept,
-	http_hdr_content_type,
-	http_hdr_connection,
-	http_hdr_other,
+#define HTTP_HDR(hdr, msg) hdr,
+#include "http_hdr.def"
+#undef HTTP_HDR
 	http_hdr_max,
 } http_header_field_t;
 
@@ -38,35 +35,34 @@ typedef struct
 	http_header_field_t field;
 	string_view_t value;		// 头部值
 	string_view_t name;			// 只有 field == http_hdr_other 时填充
-} http_header_t;
+} http_request_header_t;
 
-typedef struct 
+
+
+typedef struct
 {
-	http_method_t method;
-	string_view_t path;
-	http_version_t version;
-	http_header_t* headers;
-	size_t header_count;
-	string_view_t body;
-} http_request_t;
+	int code;
+	string_view_t message;
+} http_status_t;
 
 
 const char** get_http_methods();
 size_t get_http_methods_len();
 
-// 所有的字符串又外部管理，确保外部的生命周期比 相关所有http解析声明周期长
-http_request_t* http_request_alloc();
-void http_request_free(http_request_t* req);
 
-http_err_t http_request_set_body(http_request_t* req, string_view_t body);
+http_err_t header_initial(http_request_header_t** header, size_t* header_size,
+								 size_t* capacity);
 
-// 添加请求头到 http_request_t
-http_err_t http_request_add_header(http_request_t* req,
-								   http_header_field_t field,
-								   string_view_t value);
 
-// 添加暂不支持的请求头
-http_err_t http_request_add_header_other(http_request_t* req,
-										 string_view_t name,
-										 string_view_t value);
+http_err_t header_push_back_empty(http_request_header_t** header, size_t* header_size,
+								  size_t* capacity);
+
+http_err_t http_set_status(int code, http_status_t* status);
+
+bool http_get_status_sv(int code, char* buf);
+string_view_t http_get_status_msg(int code);
+
+string_view_t http_get_version_sv(http_version_t version);
+
+string_view_t http_get_header_field_sv(http_header_field_t method);
 

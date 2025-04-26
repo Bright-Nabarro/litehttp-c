@@ -121,8 +121,8 @@ void string_take_ownership(string_t* sp, char* data, size_t len)
 {
 	assert(sp != nullptr);
 	string_impl_t* s = str2impl(sp);
-	s->size = len;
-	s->capacity = len;
+	s->size = len+1;
+	s->capacity = s->size;
 	s->data = data;
 }
 
@@ -266,6 +266,26 @@ bool string_assign_view(string_t* sp, const string_view_t sv)
 	s->capacity = new_capacity;
 
 	return true;
+}
+
+bool string_append_cstr(string_t* s, const char* cstr)
+{
+	assert(s != nullptr);
+	if (cstr == nullptr)
+	{
+		errno = EINVAL;
+		return false;
+	}
+
+	string_view_t sv = string_view_from_cstr(cstr);
+	return string_append_view(s, sv);
+}
+
+bool string_append_string(string_t* s, const string_t* append_s)
+{
+	assert(s != nullptr);
+	string_view_t sv = string_view_from_string(append_s);
+	return string_append_view(s, sv);
 }
 
 bool string_append_parts(string_t* s, const char* cstr, size_t len)
@@ -425,6 +445,11 @@ int string_view_compare(string_view_t lhsp, string_view_t rhsp)
 	return llen - rlen;
 }
 
+bool string_view_equal(string_view_t lhs, string_view_t rhs)
+{
+	return string_view_compare(lhs, rhs) == 0;
+}
+
 bool string_view_to_buf(string_view_t sv, char* buf, size_t buf_len)
 {
 	size_t sv_len = string_view_len(sv);
@@ -442,6 +467,19 @@ bool string_view_to_buf(string_view_t sv, char* buf, size_t buf_len)
 int string_view_compare_cstr(string_view_t lhs, const char* rhs)
 {
 	return string_view_compare(lhs, string_view_from_cstr(rhs));
+}
+
+size_t string_view_hash(string_view_t sv)
+{
+	size_t hash = 5381;
+	const char* str = string_view_cstr(sv);
+	const size_t len = string_view_len(sv);
+
+	for (size_t i = 0; i < len; ++i)
+	{
+		hash = ((hash << 5) + hash) + str[i];
+	}
+	return hash;
 }
 
 /*****

@@ -12,7 +12,7 @@ http_err_t core_config();
 // server
 int get_port();
 string_view_t get_host();
-string_view_t base_dir();
+string_view_t get_base_dir();
 
 // core
 int get_handle_threads();

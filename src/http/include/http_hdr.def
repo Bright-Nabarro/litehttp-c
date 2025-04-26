@@ -1,0 +1,7 @@
+HTTP_HDR(http_hdr_host, "Host")
+HTTP_HDR(http_hdr_user_agent, "User-Agent")
+HTTP_HDR(http_hdr_accept, "Accept")
+HTTP_HDR(http_hdr_content_type, "Content-Type")
+HTTP_HDR(http_hdr_content_length, "Content-Length")
+HTTP_HDR(http_hdr_connection, "Connection")
+HTTP_HDR(http_hdr_other, "Other")

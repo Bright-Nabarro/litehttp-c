@@ -38,7 +38,9 @@ bool string_resize(string_t* s, size_t new_len);
 bool string_assign(string_t* s, const char* cstr);
 bool string_assign_view(string_t* s, string_view_t sv);
 bool string_append(string_t* s, const char* cstr);
+bool string_append_cstr(string_t* s, const char* cstr);
 bool string_append_parts(string_t* s, const char* cstr, size_t len);
+bool string_append_string(string_t* s, const string_t* append_s);
 bool string_append_view(string_t* s, string_view_t sv);
 bool string_push_back(string_t* s, char ch);
 
@@ -71,7 +73,9 @@ bool string_view_empty(string_view_t sv);
 const char* string_view_cstr(string_view_t sv);
 bool string_view_to_buf(string_view_t sv, char* buf, size_t buf_len);
 int string_view_compare(string_view_t lhs, string_view_t rhs);
+bool string_view_equal(string_view_t lhs, string_view_t rhs);
 int string_view_compare_cstr(string_view_t lhs, const char* rhs);
+size_t string_view_hash(string_view_t sv);
 
 //// 可选：查找、子串等
 //ssize_t string_find(const string_t* s, const char* substr);

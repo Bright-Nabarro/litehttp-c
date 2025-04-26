@@ -34,19 +34,11 @@ static
 http_err_t parse_request_line(http_parse_ctx_t* ctx, http_request_t* request);
 // 解析单个请求头行
 static
-http_err_t parse_header_line(http_parse_ctx_t* ctx, http_header_t* ret);
+http_err_t parse_header_line(http_parse_ctx_t* ctx, http_request_header_t* ret);
 // 解析所有请求头
 static
 http_err_t parse_body(http_parse_ctx_t* ctx, http_request_t* request);
-// 工具函数：解析HTTP方法字符串为枚举
-static
-http_method_t parse_http_method(const char* method_str, size_t len);
-// 工具函数：解析HTTP版本字符串为枚举
-static
-http_version_t parse_http_version(const char* version_str, size_t len);
-// 工具函数：解析请求头名为枚举
-static
-http_header_field_t parse_http_header_field(const char* header_name, size_t len);
+
 /**
  * @brief 工具函数：查找/r/n
  * @param line_len 解析每行长度，不包括/r/n
@@ -66,7 +58,7 @@ http_header_field_t parse_header2header_field(string_view_t header_sv);
 /****
  * INTERFACE IMPLEMENTAT
  ****/
-http_err_t parse_http_request(string_view_t post, http_request_t** request)
+http_err_t parse_http_request(string_view_t post, http_request_t* request)
 {
 	http_err_t herr = http_success;
 
@@ -74,18 +66,10 @@ http_err_t parse_http_request(string_view_t post, http_request_t** request)
 	memset(&context, 0, sizeof(context));
 	context.raw_data = post;
 
-	http_request_t* ctx_req = http_request_alloc();
-	if (ctx_req == nullptr)
-		goto err;
-	herr = parse_http_request_ctx(&context, ctx_req);
+	herr = parse_http_request_ctx(&context, request);
 	if (herr != http_success)
-		goto err;
-	*request = ctx_req;
+		return herr;
 	return http_success;
-
-err:
-	*request = nullptr;
-	return herr;
 }
 
 
@@ -114,7 +98,7 @@ http_err_t parse_http_request_ctx(http_parse_ctx_t* ctx, http_request_t* request
 	
 	// 解析 http 首部
 	size_t header_arr_len = 10;
-	http_header_t* header_arr = malloc(sizeof(http_header_t) * header_arr_len);
+	http_request_header_t* header_arr = malloc(sizeof(http_request_header_t) * header_arr_len);
 	if (header_arr == nullptr)
 	{
 		log_http_message_with_errno(HTTP_MALLOC_ERR);
@@ -127,7 +111,8 @@ http_err_t parse_http_request_ctx(http_parse_ctx_t* ctx, http_request_t* request
 		if (i == header_arr_len)
 		{
 			header_arr_len *= 2;
-			http_header_t* new_hdr = realloc(header_arr, header_arr_len);
+			http_request_header_t* new_hdr =
+				realloc(header_arr, header_arr_len * sizeof(http_request_header_t));
 			if (new_hdr == nullptr)
 			{
 				free(header_arr);
@@ -152,14 +137,15 @@ http_err_t parse_http_request_ctx(http_parse_ctx_t* ctx, http_request_t* request
 		herr = parse_header_line(ctx, &header_arr[i]);
 		ctx->cur = ctx->next;
 	}
-	http_header_t* new_hdr = realloc(header_arr, i);
+	http_request_header_t* new_hdr = realloc(header_arr, (i+1) * sizeof(http_request_header_t));
 	if (new_hdr == nullptr)
 	{
 		free(header_arr);
 		log_http_message_with_errno(HTTP_REALLOC_ERR);
 		return http_realloc_err;
 	}
-	request->headers = header_arr;
+	
+	request->headers = new_hdr;
 	request->header_count = i;
 	
 	// 解析Http请求报文段
@@ -177,7 +163,11 @@ http_err_t parse_request_line(http_parse_ctx_t* ctx, http_request_t* request)
 	// 解析 http request 的方法
 	herr = find_next_char(' ', ctx->cur, line_remain_len, &next, &part_len);
 	if (herr != http_success)
+	{
+		request->method = http_method_unkown;
+		request->version = http_ver_unkown;
 		return herr;
+	}
 	assert(part_len + 1 == (size_t)(next - ctx->cur));
 	line_remain_len -= (next - ctx->cur);
 
@@ -256,7 +246,7 @@ http_err_t parse_request_line(http_parse_ctx_t* ctx, http_request_t* request)
 }
 
 static
-http_err_t parse_header_line(http_parse_ctx_t* ctx, http_header_t* header_ret)
+http_err_t parse_header_line(http_parse_ctx_t* ctx, http_request_header_t* header_ret)
 {
 	assert(header_ret != nullptr);
 	size_t cur_remaining = ctx->cur_line_len;

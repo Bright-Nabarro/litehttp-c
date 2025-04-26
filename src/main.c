@@ -3,10 +3,11 @@
 #include <limits.h>
 #include <signal.h>
 #include <stdlib.h>
-
 #include "configure.h"
 #include "base.h"
 #include "reactor.h"
+#include "server.h"
+#include "resource_getter.h"
 
 static void initial();
 
@@ -28,6 +29,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
 	thdpool_release();
 	release_config_file();
+	resource_getter_release();
 	return 0;
 }
 
@@ -67,5 +69,6 @@ static void initial()
 		log_http_message(http_err_to_msg(herr == http_success ? extra : herr));
 	
 	thdpool_initial();
+	resource_getter_initial();
 }
 

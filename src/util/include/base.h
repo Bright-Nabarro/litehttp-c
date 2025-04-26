@@ -5,6 +5,8 @@
 
 #include "error_code.h"
 
+//#define err_handler
+
 void log_http_message(http_message_t name, ...);
 
 #define log_debug_message(fmt, ...)                                            \
