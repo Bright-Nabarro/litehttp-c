@@ -58,7 +58,7 @@ http_header_field_t parse_header2header_field(string_view_t header_sv);
 /****
  * INTERFACE IMPLEMENTAT
  ****/
-http_err_t parse_http_request(string_view_t post, http_request_t* request)
+http_err_t http_parse_request(string_view_t post, http_request_t* request)
 {
 	http_err_t herr = http_success;
 
@@ -171,8 +171,8 @@ http_err_t parse_request_line(http_parse_ctx_t* ctx, http_request_t* request)
 	assert(part_len + 1 == (size_t)(next - ctx->cur));
 	line_remain_len -= (next - ctx->cur);
 
-	const char** methods_str = get_http_methods();
-	size_t methods_size = get_http_methods_len();
+	const char** methods_str = http_get_methods();
+	size_t methods_size = http_get_methods_len();
 	assert(methods_size == http_method_max_known);
 	http_method_t method = http_method_unkown;
 

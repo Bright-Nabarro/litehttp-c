@@ -20,21 +20,21 @@ static struct
 {
 	bool async;
 	string_t log_file;
-} config_logger;
+} logger_config;
 
 static struct 
 {
 	string_t host;
 	int port;
 	string_t base_dir;
-} config_server;
+} server_config;
 
 static struct
 {
 	int handle_threads;
 	int listen_que;
 	int max_events;
-} config_core;
+} core_config;
 
 http_err_t parse_config_file(const char* filename)
 {
@@ -62,7 +62,7 @@ void release_config_file()
 	toml_free(toml_configure);
 }
 
-http_err_t log_config()
+http_err_t config_log()
 {
 	ctp_logger_config_t ctp_logger_config;
 	ctp_logger_config_default(&ctp_logger_config);
@@ -74,16 +74,16 @@ http_err_t log_config()
 		value = toml_table_bool(table, "async");
 		if (value.ok)
 		{
-			config_logger.async = value.u.b;
-			ctp_logger_config.async = config_logger.async;
+			logger_config.async = value.u.b;
+			ctp_logger_config.async = logger_config.async;
 		}
 		value = toml_table_string(table, "log_file");
 		if (value.ok)
 		{
-			string_take_ownership(&config_logger.log_file, value.u.s,
+			string_take_ownership(&logger_config.log_file, value.u.s,
 								  value.u.sl);
 			
-			ctp_logger_config.log_file = string_cstr(&config_logger.log_file);
+			ctp_logger_config.log_file = string_cstr(&logger_config.log_file);
 		}
 	}
 	else
@@ -96,7 +96,7 @@ http_err_t log_config()
 	return herr;
 }
 
-http_err_t server_config()
+http_err_t config_server()
 {
 	toml_table_t* table = toml_table_table(toml_configure, "server");
 	if (!table)
@@ -113,11 +113,11 @@ http_err_t server_config()
 	{
 		log_http_message(HTTP_UNSET_HOST);
 		herr = http_err_unset_use_default;
-		string_init_from_cstr(&config_server.host, DEFAULT_HOST);
+		string_init_from_cstr(&server_config.host, DEFAULT_HOST);
 	}
 	else
 	{
-		string_take_ownership(&config_server.host, value.u.s, value.u.sl);
+		string_take_ownership(&server_config.host, value.u.s, value.u.sl);
 	}
 	
 	value = toml_table_int(table, "port");
@@ -125,11 +125,11 @@ http_err_t server_config()
 	{
 		log_http_message(HTTP_UNSET_PORT);
 		herr = http_err_unset_use_default;
-		config_server.port = DEFAULT_PORT;
+		server_config.port = DEFAULT_PORT;
 	}
 	else
 	{
-		config_server.port = value.u.i;
+		server_config.port = value.u.i;
 	}
 
 	value = toml_table_string(table, "base_dir");
@@ -140,14 +140,14 @@ http_err_t server_config()
 	}
 	else
 	{
-		string_take_ownership(&config_server.base_dir, value.u.s, value.u.sl);
+		string_take_ownership(&server_config.base_dir, value.u.s, value.u.sl);
 	}
 	
 	return herr;
 }
 
 
-http_err_t core_config()
+http_err_t config_core()
 {
 	http_err_t herr = http_success;
 	toml_table_t* table = toml_table_table(toml_configure, "core");
@@ -160,11 +160,11 @@ http_err_t core_config()
 	{
 		log_http_message(HTTP_UNSET_HANDLE_THREADS);
 		herr = http_err_unset_use_default;
-		config_core.handle_threads = 4;
+		core_config.handle_threads = 4;
 	}
 	else
 	{
-		config_core.handle_threads = value.u.i;
+		core_config.handle_threads = value.u.i;
 	}
 
 	value = toml_table_int(table, "listen_que");
@@ -172,11 +172,11 @@ http_err_t core_config()
 	{
 		log_http_message(HTTP_UNSET_LISTEN_QUE);
 		herr = http_err_unset_use_default;
-		config_core.listen_que = 10;
+		core_config.listen_que = 10;
 	}
 	else
 	{
-		config_core.listen_que = value.u.i;
+		core_config.listen_que = value.u.i;
 	}
 
 	value = toml_table_int(table, "listen_que");
@@ -184,11 +184,11 @@ http_err_t core_config()
 	{
 		log_http_message(HTTP_UNSET_MAX_EVENT);
 		herr = http_err_unset_use_default;
-		config_core.max_events = 100;
+		core_config.max_events = 100;
 	}
 	else
 	{
-		config_core.max_events = value.u.i;
+		core_config.max_events = value.u.i;
 	}
 
 	return herr;
@@ -196,35 +196,35 @@ http_err_t core_config()
 
 
 // server
-int get_port()
+int config_get_port()
 {
-	return config_server.port;
+	return server_config.port;
 }
 
 string_view_t get_host()
 {
-	return string_view_from_string(&config_server.host);
+	return string_view_from_string(&server_config.host);
 }
 
 string_view_t get_base_dir()
 {
-	return string_view_from_string(&config_server.base_dir);
+	return string_view_from_string(&server_config.base_dir);
 }
 
 // core
-int get_handle_threads()
+int config_get_handle_threads()
 {
-	return config_core.handle_threads;
+	return core_config.handle_threads;
 }
 
-int get_max_events()
+int config_get_max_events()
 {
-	return config_core.max_events;
+	return core_config.max_events;
 }
 
-int get_listen_que()
+int config_get_listen_que()
 {
-	return config_core.listen_que;
+	return core_config.listen_que;
 }
 
 
@@ -233,7 +233,7 @@ http_err_t thdpool_initial()
 {
 	http_err_t herr = http_success;
 	int ec = 0;
-	thdpool = ctp_thdpool_create(get_handle_threads(), &ec);
+	thdpool = ctp_thdpool_create(config_get_handle_threads(), &ec);
 	if (ec != 0)
 	{
 		log_http_message_with_ec(ec, HTTP_THD_POOL_INI_ERR);

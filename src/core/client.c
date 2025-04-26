@@ -32,7 +32,7 @@ void handle_client_fd(void* vargs)
 	if (herr != http_success)
 		goto err;
 
-	herr = parse_http_request(string_view_from_string(&receive_post),
+	herr = http_parse_request(string_view_from_string(&receive_post),
 							  &http_request);
 	if (herr != http_success)
 		goto err;

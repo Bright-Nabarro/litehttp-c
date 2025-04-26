@@ -47,18 +47,18 @@ static void initial()
 		exit(1);
 	}
 
-	herr = log_config();
+	herr = config_log();
 	if (herr != http_success)
 		log_http_message(http_err_to_msg(herr));
 
-	herr = server_config();
+	herr = config_server();
 	if (herr == http_err_unset_fatal)
 	{
 		log_http_message(http_err_to_msg(herr));
 		exit(1);
 	}
 
-	http_err_t extra = core_config();
+	http_err_t extra = config_core();
 	if (extra == http_err_unset_fatal)
 	{
 		log_http_message(http_err_to_msg(extra));

@@ -12,12 +12,12 @@ static const char* http_methods[] = {
 	"POST",
 };
 
-const char** get_http_methods()
+const char** http_get_methods()
 {
 	return http_methods;
 }
 
-size_t get_http_methods_len()
+size_t http_get_methods_len()
 {
 	return sizeof(http_methods) / sizeof(http_methods[0]);
 }
@@ -53,7 +53,7 @@ http_err_t header_initial(http_request_header_t** header, size_t* header_size,
 	return http_success;
 }
 
-http_err_t header_push_back_empty(http_request_header_t** header,
+http_err_t http_header_push_back_empty(http_request_header_t** header,
 		size_t* header_size, size_t* capacity)
 {
 	assert(header != nullptr);

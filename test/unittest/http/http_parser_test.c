@@ -221,7 +221,7 @@ void test_parse_http_request()
             "\r\n";
         string_view_t raw_view = string_view_from_cstr(raw);
         http_request_t req = {0};
-        http_err_t err = parse_http_request(raw_view, &req);
+        http_err_t err = http_parse_request(raw_view, &req);
 
         TEST(err == http_success);
         TEST(req.method == http_method_head);
@@ -243,7 +243,7 @@ void test_parse_http_request()
             "\r\n";
         string_view_t raw_view = string_view_from_cstr(raw);
         http_request_t req = {0};
-        http_err_t err = parse_http_request(raw_view, &req);
+        http_err_t err = http_parse_request(raw_view, &req);
 
         TEST(err == http_success);
         TEST(req.method == http_method_get);
@@ -265,7 +265,7 @@ void test_parse_http_request()
             "\r\n";
         string_view_t raw_view = string_view_from_cstr(raw);
         http_request_t req = {0};
-        http_err_t err = parse_http_request(raw_view, &req);
+        http_err_t err = http_parse_request(raw_view, &req);
 
         TEST(err == http_success);
         TEST(req.method == http_method_post);
@@ -284,7 +284,7 @@ void test_parse_http_request()
             "\r\n";
         string_view_t raw_view = string_view_from_cstr(raw);
         http_request_t req = {0};
-        http_err_t err = parse_http_request(raw_view, &req);
+        http_err_t err = http_parse_request(raw_view, &req);
 
         TEST(err == http_success);
         TEST(req.method == http_method_get);
@@ -304,7 +304,7 @@ void test_parse_http_request()
             "\r\n";
         string_view_t raw_view = string_view_from_cstr(raw);
         http_request_t req = {0};
-        http_err_t err = parse_http_request(raw_view, &req);
+        http_err_t err = http_parse_request(raw_view, &req);
 
         TEST(err == http_success);
         TEST(req.method == http_method_get);

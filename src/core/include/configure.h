@@ -5,19 +5,19 @@
 http_err_t parse_config_file(const char* file_name);
 void release_config_file();
 
-http_err_t server_config();
-http_err_t log_config();
-http_err_t core_config();
+http_err_t config_server();
+http_err_t config_log();
+http_err_t config_core();
 
 // server
-int get_port();
+int config_get_port();
 string_view_t get_host();
 string_view_t get_base_dir();
 
 // core
-int get_handle_threads();
-int get_max_events();
-int get_listen_que();
+int config_get_handle_threads();
+int config_get_max_events();
+int config_get_listen_que();
 
 // thread pool
 http_err_t thdpool_initial();

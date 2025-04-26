@@ -18,8 +18,5 @@ http_err_t http_response_add_header(http_response_t* rep, size_t* capacity,
 
 http_err_t http_response_to_string(const http_response_t* rep, string_t* post);
 
-string_view_t get_simple_response();
-
-http_err_t get_success_response(string_view_t html_post,
-								http_response_t* response);
+string_view_t http_get_simple_response();
 

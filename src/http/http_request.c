@@ -5,7 +5,7 @@ http_err_t http_request_add_header(http_request_t* req, size_t* capacity,
 								   string_view_t value)
 {
 	http_err_t herr = http_success;
-	herr = header_push_back_empty(&req->headers, &req->header_count, capacity);
+	herr = http_header_push_back_empty(&req->headers, &req->header_count, capacity);
 	if (herr != http_success)
 	{
 		return herr;
@@ -21,7 +21,7 @@ http_err_t http_request_add_header_other(http_request_t* req, size_t* capacity,
 										 string_view_t value)
 {
 	http_err_t herr = http_success;
-	herr = header_push_back_empty(&req->headers, &req->header_count, capacity);
+	herr = http_header_push_back_empty(&req->headers, &req->header_count, capacity);
 	if (herr != http_success)
 		return herr;
 	req->headers[req->header_count-1].name = name;

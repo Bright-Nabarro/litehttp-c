@@ -43,7 +43,7 @@ http_err_t http_response_add_header(http_response_t* rep, size_t* capacity,
 									string_view_t value)
 {
 	http_err_t herr = http_success;
-	herr = header_push_back_empty(&rep->headers, &rep->header_len, capacity);
+	herr = http_header_push_back_empty(&rep->headers, &rep->header_len, capacity);
 	if (herr != http_success)
 		return herr;
 	rep->headers[rep->header_len-1].field = field;
@@ -52,7 +52,7 @@ http_err_t http_response_add_header(http_response_t* rep, size_t* capacity,
 	return herr;
 }
 
-string_view_t get_simple_response()
+string_view_t http_get_simple_response()
 {
 	static const char* post = "HTTP/1.1 200 OK\r\n"
 							  "Content-Type: text/html; charset=UTF-8\r\n"
@@ -60,9 +60,5 @@ string_view_t get_simple_response()
 							  "\r\n"
 							  "<html>Hello, world!</html>\r\n";
 	return string_view_from_cstr(post);
-}
-
-http_err_t get_success_response(string_view_t html_post, http_response_t* response)
-{
 }
 

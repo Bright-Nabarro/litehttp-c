@@ -46,15 +46,15 @@ typedef struct
 } http_status_t;
 
 
-const char** get_http_methods();
-size_t get_http_methods_len();
+const char** http_get_methods();
+size_t http_get_methods_len();
 
 
 http_err_t header_initial(http_request_header_t** header, size_t* header_size,
 								 size_t* capacity);
 
 
-http_err_t header_push_back_empty(http_request_header_t** header, size_t* header_size,
+http_err_t http_header_push_back_empty(http_request_header_t** header, size_t* header_size,
 								  size_t* capacity);
 
 http_err_t http_set_status(int code, http_status_t* status);

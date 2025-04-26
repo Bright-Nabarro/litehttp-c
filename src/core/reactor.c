@@ -37,7 +37,7 @@ http_err_t handle_ipv4_main_loop(int server_fd)
 	ini_ev.events = EPOLLIN | EPOLLET;
 	epoll_usrdata_t* usrdata = create_epoll_usrdata(server_fd);
 	string_init_from_string_view(&usrdata->ip, get_host());
-	usrdata->port = get_port();
+	usrdata->port = config_get_port();
 	ini_ev.data.ptr = usrdata;
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_fd, &ini_ev) < 0)
 	{
@@ -45,7 +45,7 @@ http_err_t handle_ipv4_main_loop(int server_fd)
 		return http_err_epoll_ctl_add;
 	}
 
-	int max_events = get_max_events();
+	int max_events = config_get_max_events();
 	struct epoll_event* events =
 		malloc(max_events * sizeof(struct epoll_event));
 	http_err_t herr = http_success;

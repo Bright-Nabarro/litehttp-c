@@ -30,7 +30,7 @@ http_err_t get_ipv4_server_fd(int* fd)
 	}
 
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(get_port());
+	server_addr.sin_port = htons(config_get_port());
 	if (inet_pton(AF_INET, string_view_cstr(get_host()),
 				  &server_addr.sin_addr) != 1)
 	{
@@ -46,7 +46,7 @@ http_err_t get_ipv4_server_fd(int* fd)
 		goto clean_fd;
 	}
 	
-	if (listen(server_fd, get_listen_que()) < 0)
+	if (listen(server_fd, config_get_listen_que()) < 0)
 	{
 		log_http_message_with_errno(HTTP_LISTEN_ERR);
 		herr = http_err_listen;
@@ -59,7 +59,7 @@ http_err_t get_ipv4_server_fd(int* fd)
 		goto clean_fd;
 	}
 
-	log_http_message(HTTP_START_LISTEN, string_view_cstr(get_host()), get_port());
+	log_http_message(HTTP_START_LISTEN, string_view_cstr(get_host()), config_get_port());
 
 	return herr;
 clean_fd:
