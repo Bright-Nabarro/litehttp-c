@@ -47,7 +47,7 @@ http_err_t header_initial(http_request_header_t** header, size_t* header_size,
 	if (*header == nullptr)
 	{
 		log_http_message_with_errno(HTTP_MALLOC_ERR);
-		return http_malloc;
+		return http_err_malloc;
 	}
 
 	return http_success;
@@ -65,7 +65,7 @@ http_err_t header_push_back_empty(http_request_header_t** header,
 		if (new_hdr == nullptr)
 		{
 			log_http_message_with_errno(HTTP_REALLOC_ERR);
-			return http_realloc_err;
+			return http_err_realloc;
 		}
 		*header = new_hdr;
 	}
@@ -82,7 +82,7 @@ http_err_t http_set_status(int code, http_status_t* status)
 	if (string_view_empty(status->message))
 	{
 		log_http_message(HTTP_GET_UNKOWN_STATUS);
-		return http_get_unkown_status;
+		return http_err_get_unkown_status;
 	}
 
 	return http_success;

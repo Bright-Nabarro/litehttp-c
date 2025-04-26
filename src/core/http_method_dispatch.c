@@ -53,7 +53,7 @@ http_err_t http_method_get_handler(const http_request_t* request,
 	if (writebytes < 0)
 	{
 		log_http_message_with_errno(HTTP_WRITE_ERR);
-		return http_write;
+		return http_err_write;
 	}
 	return http_success;
 }

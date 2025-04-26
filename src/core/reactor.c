@@ -30,7 +30,7 @@ http_err_t handle_ipv4_main_loop(int server_fd)
 	if (epoll_fd < 0)
 	{
 		log_http_message_with_errno(HTTP_EPOLL_CREATE_ERR);
-		return http_epoll_create;
+		return http_err_epoll_create;
 	}
 
 	struct epoll_event ini_ev;
@@ -42,7 +42,7 @@ http_err_t handle_ipv4_main_loop(int server_fd)
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_fd, &ini_ev) < 0)
 	{
 		log_http_message_with_errno(HTTP_EPOLL_CTL_ADD_ERR);
-		return http_epoll_ctl_add;
+		return http_err_epoll_ctl_add;
 	}
 
 	int max_events = get_max_events();
@@ -58,7 +58,7 @@ http_err_t handle_ipv4_main_loop(int server_fd)
 				continue;
 
 			log_http_message_with_errno(HTTP_EPOLL_WAIT_ERR);
-			herr = http_epoll_wait;
+			herr = http_err_epoll_wait;
 			goto clean_fd;
 		}
 
@@ -83,7 +83,7 @@ static http_err_t handle_each_event(int server_fd, int epoll_fd,
 		if (args == nullptr)
 		{
 			log_http_message_with_errno(HTTP_MALLOC_ERR);
-			return http_malloc;
+			return http_err_malloc;
 		}
 		args->usrdata = data;
 		args->epoll_fd = epoll_fd;

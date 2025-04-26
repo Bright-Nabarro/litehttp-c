@@ -13,14 +13,14 @@ http_err_t setnoblocking(int fd)
 	if (flag < 0)
 	{
 		log_http_message(HTTP_FCNTL_F_GETFL_ERR);
-		return http_fcntl_f_getfl;
+		return http_err_fcntl_f_getfl;
 	}
 	flag |= O_NONBLOCK;
 	
 	if (fcntl(fd, F_SETFL, flag) < 0)
 	{
 		log_http_message(HTTP_FCNTL_F_SETFL_ERR);
-		return http_fcntl_f_setfl;
+		return http_err_fcntl_f_setfl;
 	}
 	return http_success;
 }
@@ -51,12 +51,12 @@ http_err_t get_absolue_path(string_view_t postfix, string_t* path)
 	if (getcwd(buf, sizeof(buf)) == nullptr)
 	{
 		log_http_message_with_errno(HTTP_GETCWD_ERR);
-		return http_getcwd_err;
+		return http_err_getcwd;
 	}
 	if (!string_init_from_cstr(path, buf))
 	{
 		log_http_message_with_errno(HTTP_MALLOC_ERR);
-		return http_malloc;
+		return http_err_malloc;
 	}
 	string_push_back(path, '/');
 	log_debug_message("base dir %.*s", (int)string_view_len(get_base_dir()),

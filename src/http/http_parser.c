@@ -92,7 +92,7 @@ http_err_t parse_http_request_ctx(http_parse_ctx_t* ctx, http_request_t* request
 
 	herr = parse_request_line(ctx, request);
 	if (herr != http_success
-	 && herr != http_request_unkown_method)
+	 && herr != http_err_request_unkown_method)
 		return herr;
 	ctx->cur = ctx->next;
 	
@@ -102,7 +102,7 @@ http_err_t parse_http_request_ctx(http_parse_ctx_t* ctx, http_request_t* request
 	if (header_arr == nullptr)
 	{
 		log_http_message_with_errno(HTTP_MALLOC_ERR);
-		return http_malloc;
+		return http_err_malloc;
 	}
 
 	size_t i;
@@ -117,7 +117,7 @@ http_err_t parse_http_request_ctx(http_parse_ctx_t* ctx, http_request_t* request
 			{
 				free(header_arr);
 				log_http_message_with_errno(HTTP_REALLOC_ERR);
-				return http_realloc_err;
+				return http_err_realloc;
 			}
 			header_arr = new_hdr;
 		}
@@ -142,7 +142,7 @@ http_err_t parse_http_request_ctx(http_parse_ctx_t* ctx, http_request_t* request
 	{
 		free(header_arr);
 		log_http_message_with_errno(HTTP_REALLOC_ERR);
-		return http_realloc_err;
+		return http_err_realloc;
 	}
 	
 	request->headers = new_hdr;
@@ -192,7 +192,7 @@ http_err_t parse_request_line(http_parse_ctx_t* ctx, http_request_t* request)
 	}
 	if (method == http_method_unkown)
 	{
-		herr = http_request_unkown_method;
+		herr = http_err_request_unkown_method;
 		log_http_message(HTTP_REQUEST_UNKOWN_METHOD);
 	}
 	request->method = method;
@@ -213,7 +213,7 @@ http_err_t parse_request_line(http_parse_ctx_t* ctx, http_request_t* request)
 	if (line_remain_len < 6 || strncmp(ctx->cur, http_ver_prefix, 5) != 0)
 	{
 		log_http_message(HTTP_REQUEST_VERSION_INVALID);
-		return http_request_version_invalid;
+		return http_err_request_version_invalid;
 	}
 
 	switch(*(ctx->cur+5))
@@ -224,7 +224,7 @@ http_err_t parse_request_line(http_parse_ctx_t* ctx, http_request_t* request)
 		 || (*(ctx->cur+7) != '1' && *(ctx->cur+7) != '0'))
 		{
 			log_http_message(HTTP_REQUEST_VERSION_INVALID);
-			return http_request_version_invalid;
+			return http_err_request_version_invalid;
 		}
 		if (*(ctx->cur+7) == '1')
 			request->version = http_ver_1_1;
@@ -239,7 +239,7 @@ http_err_t parse_request_line(http_parse_ctx_t* ctx, http_request_t* request)
 		break;
 	default:
 		log_http_message(HTTP_REQUEST_VERSION_INVALID);
-		return http_request_version_invalid;
+		return http_err_request_version_invalid;
 	}
 
 	return herr;
@@ -310,7 +310,7 @@ static http_err_t find_next_clrf(const char* beg, size_t maxlen,
 	*ret = nullptr;
 	*line_len = 0;
 	log_http_message(HTTP_PARSE_CANNOT_FIND_SPLIT);
-	return http_parse_cannot_find_split;
+	return http_err_parse_cannot_find_split;
 }
 
 static http_err_t find_next_char(char c, const char* beg, size_t maxlen,
@@ -329,7 +329,7 @@ static http_err_t find_next_char(char c, const char* beg, size_t maxlen,
 		}
 	}
 	log_http_message(HTTP_PARSE_CANNOT_FIND_SPLIT, c);
-	return http_parse_cannot_find_space;
+	return http_err_parse_cannot_find_space;
 }
 
 static

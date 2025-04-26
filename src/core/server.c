@@ -15,7 +15,7 @@ http_err_t get_ipv4_server_fd(int* fd)
 	if (server_fd < 0)
 	{
 		log_http_message_with_errno(HTTP_SOCKET_ERR);
-		herr = http_socket;
+		herr = http_err_socket;
 		goto err;
 	}
 	*fd = server_fd;
@@ -25,7 +25,7 @@ http_err_t get_ipv4_server_fd(int* fd)
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 	{
 		log_http_message_with_errno(HTTP_SETSOCKETOPT_ERR);
-		herr = http_setsocketopt;
+		herr = http_err_setsocketopt;
 		goto err;
 	}
 
@@ -35,21 +35,21 @@ http_err_t get_ipv4_server_fd(int* fd)
 				  &server_addr.sin_addr) != 1)
 	{
 		log_http_message_with_errno(HTTP_INET_PTON_ERR);
-		herr = http_inet_pton;
+		herr = http_err_inet_pton;
 		goto clean_fd;
 	}
 
 	if (bind(server_fd, (SA*)&server_addr, sizeof(server_addr)) < 0)
 	{
 		log_http_message_with_errno(HTTP_BIND_ERR);
-		herr = http_bind;
+		herr = http_err_bind;
 		goto clean_fd;
 	}
 	
 	if (listen(server_fd, get_listen_que()) < 0)
 	{
 		log_http_message_with_errno(HTTP_LISTEN_ERR);
-		herr = http_listen;
+		herr = http_err_listen;
 		goto clean_fd;
 	}
 
@@ -87,7 +87,7 @@ void handle_server_fd(void* vargs)
 				break;
 
 			log_http_message_with_errno(HTTP_ACCEPT_ERR);
-			CALL_BACK_RETURN(args->pherr, http_accept);
+			CALL_BACK_RETURN(args->pherr, http_err_accept);
 		}
 
 		epoll_usrdata_t* usrdata = create_epoll_usrdata(client_fd);

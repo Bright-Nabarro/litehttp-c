@@ -14,7 +14,7 @@ http_err_t http_response_to_string(const http_response_t* rep, string_t* post)
 	if (string_view_empty(sv))
 	{
 		log_http_message(HTTP_GET_UNKOWN_VERSION);
-		return http_get_unkown_version;
+		return http_err_get_unkown_version;
 	}
 	string_append_view(post, sv);
 	string_push_back(post, ' ');

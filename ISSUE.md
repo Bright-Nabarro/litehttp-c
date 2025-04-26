@@ -25,9 +25,11 @@
 
 # 重构
 - [ ] `http_err_t`对于一些方法失败的名称改成`http_err`前缀
+- [ ] `http`中部分方法命名随意，需要规范前缀为`http`
 - [ ] `configure.h`中所有方法添加`config_`前缀
 - [ ] `http_parser` 将上下文类暴露到接口，配合`tcp`粘包，拆包实现, 其接口直接重构
 - [ ] `client_recv` 相关的读取函数重写，配合`tcp`粘包，拆包实现
+- [ ] 明确`http_parser`解析状态机，划分责任
 
 # 待测试
 - [ ] `string_view_t` 新增功能

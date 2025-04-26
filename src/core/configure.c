@@ -42,7 +42,7 @@ http_err_t parse_config_file(const char* filename)
 	if (!config_file)
 	{
 		fprintf(stderr, "%s", strerror(errno));
-		return http_path_err;
+		return http_err_path;
 	}
 	char buf[BUFSIZ];
 	toml_configure = toml_parse_file(config_file, buf, sizeof(buf));
@@ -50,7 +50,7 @@ http_err_t parse_config_file(const char* filename)
 	if (!toml_configure)
 	{
 		fprintf(stderr, "toml_parse_file error: %s", buf);
-		return http_config;
+		return http_err_config;
 	}
 	
 	return http_success;
@@ -89,7 +89,7 @@ http_err_t log_config()
 	else
 	{
 		fprintf(stderr, "%s\n", http_message_str(HTTP_UNSET_LOGGER));
-		herr = http_unset_use_default;
+		herr = http_err_unset_use_default;
 	}
 	ctp_logger_global_init(&ctp_logger_config);
 
@@ -102,7 +102,7 @@ http_err_t server_config()
 	if (!table)
 	{
 		log_http_message(HTTP_UNSET_SERVER);
-		return http_unset_fatal;
+		return http_err_unset_fatal;
 	}
 
 	http_err_t herr = http_success;
@@ -112,7 +112,7 @@ http_err_t server_config()
 	if (!value.ok)
 	{
 		log_http_message(HTTP_UNSET_HOST);
-		herr = http_unset_use_default;
+		herr = http_err_unset_use_default;
 		string_init_from_cstr(&config_server.host, DEFAULT_HOST);
 	}
 	else
@@ -124,7 +124,7 @@ http_err_t server_config()
 	if (!value.ok)
 	{
 		log_http_message(HTTP_UNSET_PORT);
-		herr = http_unset_use_default;
+		herr = http_err_unset_use_default;
 		config_server.port = DEFAULT_PORT;
 	}
 	else
@@ -136,7 +136,7 @@ http_err_t server_config()
 	if (!value.ok)
 	{
 		log_http_message(HTTP_UNSET_BASE_DIR);
-		return http_unset_fatal;
+		return http_err_unset_fatal;
 	}
 	else
 	{
@@ -152,14 +152,14 @@ http_err_t core_config()
 	http_err_t herr = http_success;
 	toml_table_t* table = toml_table_table(toml_configure, "core");
 	if (table == nullptr)
-		return http_unset_fatal;
+		return http_err_unset_fatal;
 
 	toml_value_t value;
 	value = toml_table_int(table, "handle_threads");
 	if (!value.ok)
 	{
 		log_http_message(HTTP_UNSET_HANDLE_THREADS);
-		herr = http_unset_use_default;
+		herr = http_err_unset_use_default;
 		config_core.handle_threads = 4;
 	}
 	else
@@ -171,7 +171,7 @@ http_err_t core_config()
 	if (!value.ok)
 	{
 		log_http_message(HTTP_UNSET_LISTEN_QUE);
-		herr = http_unset_use_default;
+		herr = http_err_unset_use_default;
 		config_core.listen_que = 10;
 	}
 	else
@@ -183,7 +183,7 @@ http_err_t core_config()
 	if (!value.ok)
 	{
 		log_http_message(HTTP_UNSET_MAX_EVENT);
-		herr = http_unset_use_default;
+		herr = http_err_unset_use_default;
 		config_core.max_events = 100;
 	}
 	else
@@ -237,7 +237,7 @@ http_err_t thdpool_initial()
 	if (ec != 0)
 	{
 		log_http_message_with_ec(ec, HTTP_THD_POOL_INI_ERR);
-		herr = http_thd_pool_ini;
+		herr = http_err_thd_pool_ini;
 	}
 
 	return herr;
@@ -257,7 +257,7 @@ http_err_t thdpool_release()
 	else if (ec > 0)
 	{
 		log_http_message_with_ec(ec, HTTP_THD_POOL_DESTROY_ERR);
-		return http_thd_pool_destroy;
+		return http_err_thd_pool_destroy;
 	}
 
 	for (size_t i = 0; i < thd_ecs_len; ++i)
@@ -268,7 +268,7 @@ http_err_t thdpool_release()
 		}
 	}
 	free(thd_ecs);
-	return http_thd_pool_thd_fn;
+	return http_err_thd_pool_thd_fn;
 }
 
 http_err_t thdpool_addjob(void (*callback)(void*), void* args, 
@@ -279,7 +279,7 @@ http_err_t thdpool_addjob(void (*callback)(void*), void* args,
 	if (ec != 0)
 	{
 		log_http_message(HTTP_THD_POOL_ADD_JOB_ERR);
-		return http_thd_pool_add_job;
+		return http_err_thd_pool_add_job;
 	}
 
 	return http_success;

@@ -21,7 +21,7 @@ http_err_t http_signal(int signo, void(*fn)(int))
 	if (sigaction(signo, &sa, nullptr) < 0)
 	{
 		log_http_message_with_errno(HTTP_SIGACTION_ERR);
-		return http_sigaction;
+		return http_err_sigaction;
 	}
 	return http_success;
 }

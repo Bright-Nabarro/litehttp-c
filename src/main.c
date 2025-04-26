@@ -52,14 +52,14 @@ static void initial()
 		log_http_message(http_err_to_msg(herr));
 
 	herr = server_config();
-	if (herr == http_unset_fatal)
+	if (herr == http_err_unset_fatal)
 	{
 		log_http_message(http_err_to_msg(herr));
 		exit(1);
 	}
 
 	http_err_t extra = core_config();
-	if (extra == http_unset_fatal)
+	if (extra == http_err_unset_fatal)
 	{
 		log_http_message(http_err_to_msg(extra));
 		exit(1);

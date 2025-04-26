@@ -27,7 +27,7 @@ void handle_client_fd(void* vargs)
 	string_t receive_post;
 	// 读取客户端, 写入receive_post
 	herr = read_client(&receive_post, client_data);
-	if (herr == http_client_close)
+	if (herr == http_err_client_close)
 		goto closefd;
 	if (herr != http_success)
 		goto err;
@@ -47,7 +47,7 @@ closefd:
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, epoll_fd, nullptr) < 0)
 	{
 		log_http_message(HTTP_EPOLL_CTL_DEL_ERR);
-		herr = http_epoll_ctl_del;
+		herr = http_err_epoll_ctl_del;
 	}
 	close(epoll_fd);
 	epoll_usrdata_free(client_data);
@@ -88,7 +88,7 @@ http_err_t read_client(string_t* rec_str, epoll_usrdata_t* usrdata)
 	}
 
 	if (req_close)
-		return http_client_close;
+		return http_err_client_close;
 
 	return http_success;
 }

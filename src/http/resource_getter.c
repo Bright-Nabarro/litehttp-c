@@ -34,13 +34,13 @@ http_err_t resource_getter_initial()
 	if (table == nullptr)
 	{
 		log_http_message_with_errno(HTTP_MALLOC_ERR);
-		return http_malloc;
+		return http_err_malloc;
 	}
 	int err = pthread_mutex_init(&table_mtx, nullptr);
 	if (err != 0)
 	{
 		log_http_message_with_ec(err, HTTP_PTHREAD_MUTEX_INIT_ERR);
-		return http_pthread_mutex_init_err;
+		return http_err_pthread_mutex_init;
 	}
 	return http_success;
 }
@@ -50,7 +50,7 @@ http_err_t resource_getter_release()
 	if (table == nullptr)
 	{
 		log_http_message(HTTP_HASH_UNINITIALIZED_ERR);
-		return http_hash_uninitialized_err;
+		return http_err_hash_uninitialized;
 	}
 
 	khiter_t kitr;
@@ -67,7 +67,7 @@ http_err_t resource_getter_release()
 	if (err != 0)
 	{
 		log_http_message_with_ec(err, HTTP_PTHREAD_MUTEX_DESTROY_ERR);
-		return http_pthread_mutex_destroy_err;
+		return http_err_pthread_mutex_destroy;
 	}
 
 	table = nullptr;
@@ -94,7 +94,7 @@ static http_err_t get_resource_lazy(string_view_t path, string_view_t* res, bool
 	if (table == nullptr)
 	{
 		log_http_message(HTTP_HASH_UNINITIALIZED_ERR);
-		return http_hash_uninitialized_err;
+		return http_err_hash_uninitialized;
 	}
 
 
@@ -102,7 +102,7 @@ static http_err_t get_resource_lazy(string_view_t path, string_view_t* res, bool
 	if (err != 0)
 	{
 		log_http_message_with_ec(err, HTTP_PTHREAD_MUTEX_LOCK);
-		return http_pthread_mutex_lock_err;
+		return http_err_pthread_mutex_lock;
 	}
 
 	// 查找res是否已经读取
@@ -119,7 +119,7 @@ static http_err_t get_resource_lazy(string_view_t path, string_view_t* res, bool
 		if (err != 0)
 		{
 			log_http_message_with_ec(err, HTTP_PTHREAD_MUTEX_UNLOCK);
-			return http_pthread_mutex_unlock_err;
+			return http_err_pthread_mutex_unlock;
 		}
 		open_resource(path, &resmem);
 		*res = string_view_from_parts(resmem.data, resmem.len);
@@ -127,7 +127,7 @@ static http_err_t get_resource_lazy(string_view_t path, string_view_t* res, bool
 		if (err != 0)
 		{
 			log_http_message_with_ec(err, HTTP_PTHREAD_MUTEX_LOCK);
-			return http_pthread_mutex_lock_err;
+			return http_err_pthread_mutex_lock;
 		}
 		int ret;
 		kitr = kh_put(path2resmem, table, path, &ret);
@@ -139,7 +139,7 @@ static http_err_t get_resource_lazy(string_view_t path, string_view_t* res, bool
 	if (err != 0)
 	{
 		log_http_message_with_ec(err, HTTP_PTHREAD_MUTEX_UNLOCK);
-		return http_pthread_mutex_unlock_err;
+		return http_err_pthread_mutex_unlock;
 	}
 
 	return http_success;
@@ -154,14 +154,14 @@ static http_err_t open_resource(string_view_t path, mapped_memory_t* mem)
 	if (res_fd < 0)
 	{
 		log_http_message_with_errno(HTTP_OPEN_ERR, path_buf);
-		return http_open_err;
+		return http_err_open;
 	}
 	
 	struct stat res_stat;
 	if (fstat(res_fd, &res_stat) < 0)
 	{
 		log_http_message_with_errno(HTTP_FSTAT_ERR, path_buf);
-		return http_fstat_err;
+		return http_err_fstat;
 	}
 
 	mem->len = res_stat.st_size;
@@ -169,7 +169,7 @@ static http_err_t open_resource(string_view_t path, mapped_memory_t* mem)
 	if (mem->data == MAP_FAILED)
 	{
 		log_http_message_with_errno(HTTP_MMAP_ERR, res_fd);
-		return http_mmap_err;
+		return http_err_mmap;
 	}
 	close(res_fd);
 
