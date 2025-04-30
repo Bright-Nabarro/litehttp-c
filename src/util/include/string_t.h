@@ -2,6 +2,7 @@
 
 #include <unistd.h>
 #include <stdint.h>
+#include <limits.h>
 
 typedef struct 
 {
@@ -52,6 +53,9 @@ void string_clear(string_t* s);
 int string_compare(const string_t* lhs, const string_t* rhs);
 int string_compare_cstr(const string_t* lhs, const char* rhs);
 
+bool int_to_string_t(string_t* s, int d);
+
+string_view_t string_subview(const string_t* str, size_t pos, size_t len);
 
 // --- string_view_t ----
 string_view_t string_view_from_cstr(const char* cstr);
@@ -77,7 +81,7 @@ bool string_view_equal(string_view_t lhs, string_view_t rhs);
 int string_view_compare_cstr(string_view_t lhs, const char* rhs);
 size_t string_view_hash(string_view_t sv);
 
-//// 可选：查找、子串等
-//ssize_t string_find(const string_t* s, const char* substr);
-//string_view_t string_subview(const string_view_t* view, size_t start, size_t len);
+string_view_t string_view_substr(string_view_t sv, size_t pos, size_t len);
 
+//// 可选：查找、子串等
+extern const size_t string_t_npos;

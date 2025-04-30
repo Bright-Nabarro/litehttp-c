@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <assert.h>
+#include <stdio.h>
+
+size_t const string_t_npos = (size_t)-1;
 
 #define STR_SMALL_BUF_SIZE 16
 
@@ -452,15 +455,18 @@ bool string_view_equal(string_view_t lhs, string_view_t rhs)
 
 bool string_view_to_buf(string_view_t sv, char* buf, size_t buf_len)
 {
-	size_t sv_len = string_view_len(sv);
-	if (sv_len >= buf_len)
+	size_t cpy_len = string_view_len(sv);
+	if (cpy_len > buf_len)
 	{
-		errno = EINVAL;
+		if (buf_len < 1)
+			return false;
+		memcpy(buf, string_view_cstr(sv), buf_len-1);
+		buf[buf_len-1] = 0;
 		return false;
 	}
 
-	memcpy(buf, string_view_cstr(sv), sv_len);
-	buf[sv_len] = 0;
+	memcpy(buf, string_view_cstr(sv), cpy_len);
+	buf[cpy_len] = 0;
 	return true;
 }
 
@@ -480,6 +486,40 @@ size_t string_view_hash(string_view_t sv)
 		hash = ((hash << 5) + hash) + str[i];
 	}
 	return hash;
+}
+
+bool int_to_string_t(string_t* s, int d)
+{
+	size_t buf_len = 1;
+	int num = d;
+	while(num > 0)
+	{
+		num /= 10;
+		++buf_len;
+	}
+	if (d < 0)
+		++buf_len;
+
+	char digit_buf[buf_len];
+	snprintf(digit_buf, buf_len, "%d", d);
+	return string_init_from_cstr(s, digit_buf);
+}
+
+string_view_t string_subview(const string_t* str, size_t pos, size_t len)
+{
+	string_view_t sv = string_view_from_string(str);
+	return string_view_substr(sv, pos, len);
+}
+
+string_view_t string_view_substr(string_view_t sv, size_t pos, size_t len)
+{
+	size_t sv_len = string_view_len(sv);
+	if (pos >= sv_len)
+		return string_view_from_cstr("");
+	size_t sub_len = sv_len;
+	if (len < sv_len && pos + len < sv_len)
+		sub_len = len;
+	return string_view_from_parts(string_view_cstr(sv) + pos, sub_len);
 }
 
 /*****

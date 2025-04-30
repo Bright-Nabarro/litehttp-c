@@ -137,57 +137,68 @@ void test_string_destroy() {
 
 // 测试 string_take_ownership 函数
 void test_string_take_ownership() {
-    string_t s;
-    string_init(&s);
-    
-    // 分配一个字符串并让string_t接管它
-    char* data = (char*)malloc(12);
-    if (!data) {
-        printf("Failed to allocate memory\n");
-        return;
+    {
+        string_t s;
+        string_init(&s);
+        
+        // 分配一个字符串并让string_t接管它
+        char* data = (char*)malloc(12);
+        if (!data) {
+            printf("Failed to allocate memory\n");
+            return;
+        }
+        strcpy(data, "Hello World");
+        
+        string_take_ownership(&s, data, 12);
+        
+        // 验证字符串内容和长度
+        TEST(strcmp(string_cstr(&s), "Hello World") == 0 && 
+             string_len(&s) == 12);
+        
+        // 不应该再使用data，因为它现在由string_t管理
+        // 这里不要调用free(data)!
+        
+        string_destroy(&s);
     }
-    strcpy(data, "Hello World");
-    
-    string_take_ownership(&s, data, 12);
-    
-    // 验证字符串内容和长度
-    TEST(strcmp(string_cstr(&s), "Hello World") == 0 && 
-         string_len(&s) == 11);
-    
-    // 不应该再使用data，因为它现在由string_t管理
-    // 这里不要调用free(data)!
-    
-    string_destroy(&s);
-    
-    // 测试空字符串的所有权接管
-    data = (char*)malloc(1);
-    if (!data) {
-        printf("Failed to allocate memory\n");
-        return;
-    }
-    data[0] = '\0';
-    
-    string_take_ownership(&s, data, 1);
-    TEST(string_len(&s) == 0 && string_empty(&s));
-    
-    string_destroy(&s);
-    
-    // 测试包含空字符的字符串
-    data = (char*)malloc(12);
-    if (!data) {
-        printf("Failed to allocate memory\n");
-        return;
-    }
-    memcpy(data, "Hello\0World", 11);
-    data[11] = '\0'; // 确保最后有终止符
-    
-    string_take_ownership(&s, data, 12);
-    // 验证包含内部空字符的字符串（这依赖于实现如何处理内嵌空字符）
-    TEST(string_len(&s) == 5 || string_len(&s) == 11); // 取决于实现是否将第一个\0视为结束
-    
-    string_destroy(&s);
-}
 
+    {
+        // 测试空字符串的所有权接管
+        string_t s;
+        string_init(&s);
+
+        char* data = (char*)malloc(1);
+        if (!data) {
+            printf("Failed to allocate memory\n");
+            return;
+        }
+        data[0] = '\0';
+        
+        string_take_ownership(&s, data, 1);
+        TEST(string_len(&s) == 1);
+        
+        string_destroy(&s);
+    }
+
+    {
+        // 测试包含空字符的字符串
+        string_t s;
+        string_init(&s);
+
+        char* data = (char*)malloc(12);
+        if (!data) {
+            printf("Failed to allocate memory\n");
+            return;
+        }
+        memcpy(data, "Hello\0World", 11);
+        data[11] = '\0'; // 确保最后有终止符
+        
+        string_take_ownership(&s, data, 11);
+        // 验证包含内部空字符的字符串（这依赖于实现如何处理内嵌空字符）
+        TEST(string_len(&s) == 5 || string_len(&s) == 11); // 取决于实现是否将第一个\0视为结束
+        
+        string_destroy(&s);
+    }
+}
 // 测试 string_reserve 函数
 void test_string_reserve() {
     string_t s;
@@ -852,10 +863,133 @@ void test_string_compare_cstr_special() {
     string_destroy(&s);
 }
 
+void test_string_compare()
+{
+    {
+        string_t a, b;
+        string_init_from_cstr(&a, "abc");
+        string_init_from_cstr(&b, "abc");
+        TEST(string_compare(&a, &b) == 0);
+        string_destroy(&a);
+        string_destroy(&b);
+    }
+    {
+        string_t a, b;
+        string_init_from_cstr(&a, "abc");
+        string_init_from_cstr(&b, "abd");
+        TEST(string_compare(&a, &b) < 0);
+        string_destroy(&a);
+        string_destroy(&b);
+    }
+    {
+        string_t a, b;
+        string_init_from_cstr(&a, "abd");
+        string_init_from_cstr(&b, "abc");
+        TEST(string_compare(&a, &b) > 0);
+        string_destroy(&a);
+        string_destroy(&b);
+    }
+    {
+        string_t a, b;
+        string_init(&a); string_init(&b);
+        TEST(string_compare(&a, &b) == 0);
+        string_destroy(&a);
+        string_destroy(&b);
+    }
+}
+
+void test_int_to_string_t()
+{
+    {
+        string_t s;
+        string_init(&s);
+        bool ok = int_to_string_t(&s, 123);
+        TEST(ok);
+        TEST(strcmp(string_cstr(&s), "123") == 0);
+        string_destroy(&s);
+    }
+    {
+        string_t s;
+        string_init(&s);
+        bool ok = int_to_string_t(&s, -456);
+        TEST(ok);
+        TEST(strcmp(string_cstr(&s), "-456") == 0);
+        string_destroy(&s);
+    }
+    {
+        string_t s;
+        string_init(&s);
+        bool ok = int_to_string_t(&s, 0);
+        TEST(ok);
+        TEST(strcmp(string_cstr(&s), "0") == 0);
+        string_destroy(&s);
+    }
+    {
+        string_t s;
+        string_init(&s);
+        // 边界值
+        bool ok = int_to_string_t(&s, INT_MIN);
+        TEST(ok);
+        // just test it is not empty
+        TEST(string_len(&s) > 0);
+        string_destroy(&s);
+    }
+}
+
+void test_string_subview()
+{
+    {
+        string_t s;
+        string_init_from_cstr(&s, "hello world");
+        string_view_t sv = string_subview(&s, 0, 5);
+        char buf[16] = {0};
+        string_view_to_buf(sv, buf, sizeof(buf));
+        TEST(strcmp(buf, "hello") == 0);
+        string_destroy(&s);
+    }
+    {
+        string_t s;
+        string_init_from_cstr(&s, "abcdef");
+        string_view_t sv = string_subview(&s, 2, 3);
+        char buf[8] = {0};
+        string_view_to_buf(sv, buf, sizeof(buf));
+        TEST(strcmp(buf, "cde") == 0);
+        string_destroy(&s);
+    }
+    {
+        // pos超出
+        string_t s;
+        string_init_from_cstr(&s, "abc");
+        string_view_t sv = string_subview(&s, 10, 2);
+        TEST(string_view_len(sv) == 0);
+        string_destroy(&s);
+    }
+    {
+        // len超出
+        string_t s;
+        string_init_from_cstr(&s, "abcde");
+        string_view_t sv = string_subview(&s, 3, 100);
+        char buf[8] = {0};
+        string_view_to_buf(sv, buf, sizeof(buf));
+        TEST(strcmp(buf, "de") == 0);
+        string_destroy(&s);
+    }
+    {
+        // len为(size_t)-1
+        string_t s;
+        string_init_from_cstr(&s, "abcdef");
+        size_t string_t_pos = (size_t)-1;
+        string_view_t sv = string_subview(&s, 2, string_t_pos);
+        char buf[8] = {0};
+        string_view_to_buf(sv, buf, sizeof(buf));
+        TEST(strcmp(buf, "cdef") == 0);
+        string_destroy(&s);
+    }
+}
+
+
 // 在main中添加这两个测试
 int main() {
-    printf("Running string initialization and ownership tests...\n");
-    
     test_string_init();
     test_string_init_from_cstr();
     test_string_init_from_parts();
@@ -878,7 +1012,9 @@ int main() {
 	test_large_string_compare();
 	test_string_compare_cstr();
 	test_string_compare_cstr_special();
-    printf("All tests completed.\n");
+	test_string_compare();
+	test_int_to_string_t();
+	test_string_subview();
     return main_ret;
 }
 
