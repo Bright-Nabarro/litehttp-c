@@ -3,4 +3,8 @@ set(targets
 	string_view_t
 )
 
-add_test_from_targets("${targets}")
+set(libs
+	util
+)
+
+add_test_from_targets("${targets}" "${libs}")

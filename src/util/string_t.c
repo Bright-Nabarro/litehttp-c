@@ -490,8 +490,10 @@ size_t string_view_hash(string_view_t sv)
 
 bool int_to_string_t(string_t* s, int d)
 {
+	if (d == 0)
+		return string_init_from_cstr(s, "0");
 	size_t buf_len = 1;
-	int num = d;
+	int num = d < 0 ? -d : d;
 	while(num > 0)
 	{
 		num /= 10;

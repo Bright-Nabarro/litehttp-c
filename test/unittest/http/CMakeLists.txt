@@ -1,2 +1,10 @@
-set(prefix_path ${CMAKE_SOURCE_DIR}/src/http)
+set(targets
+	resource_getter
+)
 
+set(libs
+	util
+	http
+)
+
+add_test_from_targets("${targets}" "${libs}")
