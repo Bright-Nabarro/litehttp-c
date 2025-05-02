@@ -17,7 +17,7 @@ typedef struct
 {
 	http_err_t* pherr;
 	int epoll_fd;
-	epoll_usrdata_t* usrdata;
+	void* usrdata;
 } fn_args_t;
 
 http_err_t setnoblocking(int fd);

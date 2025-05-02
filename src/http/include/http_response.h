@@ -7,7 +7,7 @@ typedef struct
 {
 	http_version_t version;
 	http_status_t status;
-	http_request_header_t* headers;
+	http_header_t* headers;
 	size_t header_len;
 	string_view_t body;
 } http_response_t;

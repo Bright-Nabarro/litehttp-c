@@ -32,7 +32,7 @@
 - [ ] 明确`http_parser`解析状态机，划分责任
 - [ ] `http_parser` 将上下文类暴露到接口，配合`tcp`粘包，拆包实现, 其接口直接重构
 - [ ] `client_recv` 相关的读取函数重写，配合`tcp`粘包，拆包实现
-- [ ] 在堆上创建对象使用`new`~`free`，其他静态变量使用`init`~`deinit`，统一命名，取消`create`~`destroy`命名
+- [ ] 在堆上创建对象使用`new`~`free`，其他静态变量使用`init`~`deinit`，统一命名，取消`create`, `destroy`, `release`命名
 
 # 待测试
 - [x] `string_view_t` 新增功能

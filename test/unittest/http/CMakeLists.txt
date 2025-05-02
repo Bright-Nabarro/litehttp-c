@@ -1,5 +1,6 @@
 set(targets
 	resource_getter
+	http_parse_dfs
 )
 
 set(libs

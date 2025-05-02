@@ -24,11 +24,16 @@ const char* http_err_str(http_err_t ec);
 
 void print_err_exit(http_err_t ec, const char* msg);
 
-#define ERR_HANDLER_BOOL(ret, next_receive, err_msg, ...)                      \
+#define ERR_HANDLER_BOOL(ret, next, err_msg, ...)                              \
 	do                                                                         \
 	{                                                                          \
-		if (!ret)                                                              \
+		if (!(ret))                                                            \
 		{                                                                      \
-			log_http_message(err_msg, __VA_OPT__(, ) __VA_ARGS__);             \
+			log_http_message(err_msg __VA_OPT__(, ) __VA_ARGS__);              \
+			next;                                                              \
 		}                                                                      \
 	} while (0)
+
+#define ERR_HANDLER_PTR(ret, next_receive, err_msg, ...)                       \
+	ERR_HANDLER_BOOL((ret != nullptr), next_receive, err_msg,                  \
+					 __VA_OPT__(, ) __VA_ARGS__)

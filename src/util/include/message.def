@@ -47,12 +47,20 @@ HTTP_MSG(HTTP_THD_POOL_INI_ERR, error, "Failed to initialize thread pool")
 HTTP_MSG(HTTP_THD_POOL_DESTROY_ERR, error, "Failed to destroy thread pool")
 HTTP_MSG(HTTP_THD_POOL_THD_FN_ERR, error, "Thread %d (base on thread pool) error")
 HTTP_MSG(HTTP_THD_POOL_ADD_JOB_ERR, error, "Failed to add job to thread pool")
-// http解析错误
+// http解析错误, 提示
 HTTP_MSG(HTTP_PARSE_CANNOT_FIND_SPLIT, error, "Failed to find \\r\\n in http post")
+HTTP_MSG(HTTP_PARSE_CANNOT_FIND_CLRF, info, "Failed to find clrf in http post in %s stage")
 HTTP_MSG(HTTP_PARSE_CANNOT_FIND_SPACE, error, "Failed to fild split %c")
 HTTP_MSG(HTTP_REQUEST_UNKOWN_METHOD, warn, "Client request an unkown method")
 HTTP_MSG(HTTP_REQUEST_VERSION_INVALID, error, "Client request http version is invalid")
 HTTP_MSG(HTTP_REQUEST_UNKOWN_HEADER, warn, "Client request an unkown http header %s")
+HTTP_MSG(HTTP_REQUEST_LINE_INVALID, error, "Client request message invalid in request line")
+HTTP_MSG(HTTP_REQUEST_FATAL_ERR, error, "Client request occured a fatal error, terminate parsing")
+HTTP_MSG(HTTP_REQUEST_HEADER_FILL_UP,  error, "Client request headers fill up")
+HTTP_MSG(HTTP_REQUEST_FIXED_BODY_LEN, info, "Client request specify fixed body len %d")
+HTTP_MSG(HTTP_REQUEST_CHUNKED_BODY, info, "Client request specify chunked body")
+HTTP_MSG(HTTP_REQUEST_TCP_SEGMENT_IN_BODY, info, "Client request http post segment in http body")
+HTTP_MSG(HTTP_REQUEST_INVALID_BODY, error, "Client request a invalid body post")
 
 // 警告
 HTTP_MSG(HTTP_UNSET_PORT, warn, "Failed to read port configure")

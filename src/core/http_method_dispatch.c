@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 http_err_t handle_http_request(const http_request_t* request,
-									  epoll_usrdata_t* usrdata)
+									  client_data_t* usrdata)
 {
 	switch(request->method)
 	{
@@ -18,7 +18,7 @@ http_err_t handle_http_request(const http_request_t* request,
 }
 
 http_err_t http_method_get_handler(const http_request_t* request,
-								   epoll_usrdata_t* client_data)
+								   client_data_t* client_data)
 {
 	assert(request->method == http_method_get);
 	int client_fd = client_data->fd;

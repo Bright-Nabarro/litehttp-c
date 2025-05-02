@@ -1,7 +1,18 @@
-HTTP_HDR(http_hdr_host, "Host")
+#ifndef HTTP_HDR_FIRST
+#define HTTP_HDR_FIRST(hdr, msg) HTTP_HDR(hdr, msg)
+#define HTTP_HDR_FIRST_AUTO
+#endif
+
+HTTP_HDR_FIRST(http_hdr_host, "Host")
 HTTP_HDR(http_hdr_user_agent, "User-Agent")
 HTTP_HDR(http_hdr_accept, "Accept")
 HTTP_HDR(http_hdr_content_type, "Content-Type")
 HTTP_HDR(http_hdr_content_length, "Content-Length")
 HTTP_HDR(http_hdr_connection, "Connection")
-HTTP_HDR(http_hdr_other, "Other")
+HTTP_HDR(http_hdr_transfer_encoding, "Transfer-Encoding")
+
+#ifdef HTTP_HDR_FIRST_AUTO
+#undef HTTP_HDR_FIRST
+#undef HTTP_HDR_FIRST_AUTO
+#endif
+

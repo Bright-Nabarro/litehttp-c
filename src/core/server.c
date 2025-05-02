@@ -1,6 +1,7 @@
 #include "server.h"
 
 #include "base.h"
+#include "client.h"
 #include "configure.h"
 #include "socket_util.h"
 #include <errno.h>
@@ -90,14 +91,13 @@ void handle_server_fd(void* vargs)
 			CALL_BACK_RETURN(args->pherr, http_err_accept);
 		}
 
-		epoll_usrdata_t* usrdata = create_epoll_usrdata(client_fd);
-		string_t *point = &usrdata->ip;
+		client_data_t* usrdata = nullptr;
+		herr = create_client_data(&usrdata, client_fd, &client_addr.sin_addr, client_addr.sin_port);
+		if (herr != http_success)
+			goto clean_fd;
 
-		ipv4_net2str(point, &client_addr.sin_addr);
-		int client_port = ntohs(client_addr.sin_port);
-		log_http_message(HTTP_NEW_CLIENT_GREAT, string_cstr(point), client_port);
-
-		usrdata->port = client_port;
+		log_http_message(HTTP_NEW_CLIENT_GREAT, string_cstr(&usrdata->ip),
+						 usrdata->port);
 
 		struct epoll_event client_ev;
 		herr = setnoblocking(client_fd);

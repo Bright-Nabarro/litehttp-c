@@ -1,5 +1,6 @@
 // http_ec.def
 // bussiness layer of c http server error code and describe
+// 错误输出应该由首次设置http_err_t的函数处理
 
 HTTP_EC(http_err_socket, HTTP_SOCKET_ERR)
 HTTP_EC(http_err_setsocketopt, HTTP_SETSOCKETOPT_ERR)
@@ -44,3 +45,8 @@ HTTP_EC(http_err_hash_uninitialized, HTTP_HASH_UNINITIALIZED_ERR)
 HTTP_EC(http_err_getcwd, HTTP_GETCWD_ERR)
 HTTP_EC(http_err_get_unkown_status, HTTP_GET_UNKOWN_STATUS)
 HTTP_EC(http_err_get_unkown_version, HTTP_GET_UNKOWN_VERSION)
+HTTP_EC(http_err_parse_cannot_find_clrf, HTTP_PARSE_CANNOT_FIND_CLRF)
+HTTP_EC(http_err_request_fatal, HTTP_REQUEST_FATAL_ERR)
+HTTP_EC(http_err_request_fixed_body_len, HTTP_REQUEST_FIXED_BODY_LEN)
+HTTP_EC(http_err_request_chunked_body, HTTP_REQUEST_CHUNKED_BODY)
+HTTP_EC(http_err_request_tcp_segment_in_body, HTTP_REQUEST_TCP_SEGMENT_IN_BODY)
