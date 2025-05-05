@@ -1,5 +1,6 @@
 # 缺陷
 - [x] `camke` 需要添加`khash`依赖
+- [ ] `http_response` 使用`cc_vec`包装
 - [ ] `c_thread_pool`使用了`FetchContent`, 编译耗时，使用`git`子模块替代
 - [ ] `malloc` / `realloc` 错误时会将消息传递到logger, 导致更多的malloc分配，
 需要修改logger，增加紧急日志方法
@@ -9,11 +10,9 @@
 # 功能需求
 - [x] `http request` 回应
 - [x] 添加`int_to_string_t`函数
+- [ ] (耗时) 添加`tcp`粘包，拆包处理
 - [ ] `keepalive` 未实现
 - [ ] `http head method` 实现
-- [ ] (耗时) 添加`tcp`粘包，拆包处理
-- [ ] 扩展`http`方法
-- [ ] 扩展`http`首部
 - [ ] `toml`对于ip配置扩展为列表
 - [ ] `rio_write` 和 `rio_read`
 - [ ] `uitl/base.h` 添加各种错误处理宏，简化代码
@@ -23,6 +22,7 @@
 - [ ] (耗时) 读取`html`使用`lru`算法
 - [ ] (耗时) 添加超时关闭连接，使用最小堆，事件驱动
 - [ ] 添加`EPOLL_OUT`对客户端写入
+- [ ] 具体请求头对应方法解析不完全
 
 # 重构
 - [x] `http_err_t`对于一些方法失败的名称改成`http_err`前缀

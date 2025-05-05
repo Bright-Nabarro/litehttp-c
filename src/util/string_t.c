@@ -518,9 +518,8 @@ string_view_t string_view_substr(string_view_t sv, size_t pos, size_t len)
 	size_t sv_len = string_view_len(sv);
 	if (pos >= sv_len)
 		return string_view_from_cstr("");
-	size_t sub_len = sv_len;
-	if (len < sv_len && pos + len < sv_len)
-		sub_len = len;
+	size_t max_len = sv_len - pos;
+	size_t sub_len = len < max_len ? len : max_len;
 	return string_view_from_parts(string_view_cstr(sv) + pos, sub_len);
 }
 

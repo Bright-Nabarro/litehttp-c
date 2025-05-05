@@ -156,6 +156,7 @@ void test_string_view_substr()
         char buf[10] = {0};
         string_view_to_buf(sub, buf, sizeof(buf));
         TEST(strcmp(buf, expected) == 0);
+        TEST(string_view_len(sub) == 4);
     }
     {
         // pos超出范围
@@ -170,6 +171,7 @@ void test_string_view_substr()
         char buf[16] = {0};
         string_view_to_buf(sub, buf, sizeof(buf));
         TEST(strcmp(buf, "ef") == 0);
+        TEST(string_view_len(sub) == 2);
     }
     {
         // pos为0，len为0
@@ -184,6 +186,7 @@ void test_string_view_substr()
         char buf[16] = {0};
         string_view_to_buf(sub, buf, sizeof(buf));
         TEST(strcmp(buf, "abcdef") == 0);
+        TEST(string_view_len(sub) == 6);
     }
     {
         // len为string_t_pos(-1)的情况
@@ -193,6 +196,7 @@ void test_string_view_substr()
         char buf[16] = {0};
         string_view_to_buf(sub, buf, sizeof(buf));
         TEST(strcmp(buf, "cdef") == 0);
+        TEST(string_view_len(sub) == 4);
     }
     {
         // pos为string_t_pos(-1)的情况
@@ -201,6 +205,99 @@ void test_string_view_substr()
         string_view_t sub = string_view_substr(sv, string_t_pos, 3);
         // 应为长度为0
         TEST(string_view_len(sub) == 0);
+    }
+    {
+        // pos和len都在范围内，截取中间一段，后面还有字符
+        string_view_t sv = string_view_from_cstr("hello_world");
+        string_view_t sub = string_view_substr(sv, 2, 5); // "llo_w"
+        char buf[16] = {0};
+        string_view_to_buf(sub, buf, sizeof(buf));
+        TEST(strcmp(buf, "llo_w") == 0);
+        TEST(string_view_len(sub) == 5);
+    }
+    {
+        // pos=0, len小于总长，后面有字符
+        string_view_t sv = string_view_from_cstr("openai");
+        string_view_t sub = string_view_substr(sv, 0, 3); // "ope"
+        char buf[8] = {0};
+        string_view_to_buf(sub, buf, sizeof(buf));
+        TEST(strcmp(buf, "ope") == 0);
+        TEST(string_view_len(sub) == 3);
+    }
+    {
+        // pos指向末尾前一个字符，len=1，后面还有字符
+        string_view_t sv = string_view_from_cstr("abcdefg");
+        string_view_t sub = string_view_substr(sv, 5, 1); // "f"
+        char buf[4] = {0};
+        string_view_to_buf(sub, buf, sizeof(buf));
+        TEST(strcmp(buf, "f") == 0);
+        TEST(string_view_len(sub) == 1);
+    }
+    {
+        // pos=1, len=3，后面还有字符
+        string_view_t sv = string_view_from_cstr("123456789");
+        string_view_t sub = string_view_substr(sv, 1, 3); // "234"
+        char buf[8] = {0};
+        string_view_to_buf(sub, buf, sizeof(buf));
+        TEST(strcmp(buf, "234") == 0);
+        TEST(string_view_len(sub) == 3);
+    }
+    {
+        // len为0但pos合法，应返回空子串
+        string_view_t sv = string_view_from_cstr("abcdef");
+        string_view_t sub = string_view_substr(sv, 2, 0);
+        TEST(string_view_len(sub) == 0);
+    }
+    {
+        // 只取最后一个字符
+        string_view_t sv = string_view_from_cstr("abcdef");
+        string_view_t sub = string_view_substr(sv, 5, 1);
+        char buf[4] = {0};
+        string_view_to_buf(sub, buf, sizeof(buf));
+        TEST(strcmp(buf, "f") == 0);
+        TEST(string_view_len(sub) == 1);
+    }
+    {
+        // 源字符串本身为空
+        string_view_t sv = string_view_from_cstr("");
+        string_view_t sub = string_view_substr(sv, 0, 3);
+        TEST(string_view_len(sub) == 0);
+    }
+    {
+        // len恰好等于剩余长度
+        string_view_t sv = string_view_from_cstr("abcdef");
+        string_view_t sub = string_view_substr(sv, 3, 3); // "def"
+        char buf[8] = {0};
+        string_view_to_buf(sub, buf, sizeof(buf));
+        TEST(strcmp(buf, "def") == 0);
+        TEST(string_view_len(sub) == 3);
+    }
+    {
+        // pos+len==sv_len（最后一个字符刚好包含进来）
+        string_view_t sv = string_view_from_cstr("abcdef");
+        string_view_t sub = string_view_substr(sv, 2, 4); // "cdef"
+        char buf[8] = {0};
+        string_view_to_buf(sub, buf, sizeof(buf));
+        TEST(strcmp(buf, "cdef") == 0);
+        TEST(string_view_len(sub) == 4);
+    }
+    {
+        // pos+len>sv_len，pos在末尾，len大于1
+        string_view_t sv = string_view_from_cstr("abcdef");
+        string_view_t sub = string_view_substr(sv, 5, 10); // "f"
+        char buf[8] = {0};
+        string_view_to_buf(sub, buf, sizeof(buf));
+        TEST(strcmp(buf, "f") == 0);
+        TEST(string_view_len(sub) == 1);
+    }
+    {
+        // pos=0, len比字符串长
+        string_view_t sv = string_view_from_cstr("abcdef");
+        string_view_t sub = string_view_substr(sv, 0, 100); // "abcdef"
+        char buf[16] = {0};
+        string_view_to_buf(sub, buf, sizeof(buf));
+        TEST(strcmp(buf, "abcdef") == 0);
+        TEST(string_view_len(sub) == 6);
     }
 }
 
