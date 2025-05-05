@@ -35,13 +35,13 @@ http_err_t http_method_get_handler(const http_request_t* request,
 	http_response_t response;
 	size_t header_capacity;
 	header_initial(&response.headers, &response.header_len, &header_capacity);
-	http_response_add_header(&response, &header_capacity, http_hdr_content_type,
-							 string_view_from_cstr("text/html; charset=UTF-8"));
+	//http_response_add_header(&response, &header_capacity, http_hdr_content_type,
+	//						 string_view_from_cstr("text/html; charset=UTF-8"));
 	char numbuf[16];
 	snprintf(numbuf, sizeof(numbuf), "%zu", string_view_len(html_post));
-	http_response_add_header(&response, &header_capacity,
-							 http_hdr_content_length,
-							 string_view_from_cstr(numbuf));
+	//http_response_add_header(&response, &header_capacity,
+	//						 http_hdr_content_length,
+	//						 string_view_from_cstr(numbuf));
 
 	response.body = html_post;
 	string_t post = {0};

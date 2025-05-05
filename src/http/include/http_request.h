@@ -19,11 +19,3 @@ void http_request_free(http_request_t* req);
 
 http_err_t http_request_set_body(http_request_t* req, string_view_t body);
 
-// 添加请求头到 http_request_t
-http_err_t http_request_add_header(http_request_t* req, http_header_field_t field,
-								   string_view_t value);
-
-// 添加暂不支持的请求头
-http_err_t http_request_add_header_other(http_request_t* req, string_view_t name,
-										 string_view_t value);
-

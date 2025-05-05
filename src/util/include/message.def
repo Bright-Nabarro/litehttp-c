@@ -36,6 +36,8 @@ HTTP_MSG(HTTP_HASH_UNINITIALIZED_ERR, error, "Hash table uninitialized or releas
 HTTP_MSG(HTTP_GETCWD_ERR, error, "Failed to call getcwd error")
 HTTP_MSG(HTTP_GET_UNKOWN_STATUS, error, "Get unkown http status")
 HTTP_MSG(HTTP_GET_UNKOWN_VERSION, error, "Get unkown http version")
+HTTP_MSG(HTTP_PARAM_INVALID_NULLPTR, error, "Function value receive invalid argument nullptr")
+
 
 // 配置错误
 HTTP_MSG(HTTP_UNSET_FATAL_ERR, error, "Critical configuration missing, program cannot continue running")
@@ -61,6 +63,13 @@ HTTP_MSG(HTTP_REQUEST_FIXED_BODY_LEN, info, "Client request specify fixed body l
 HTTP_MSG(HTTP_REQUEST_CHUNKED_BODY, info, "Client request specify chunked body")
 HTTP_MSG(HTTP_REQUEST_TCP_SEGMENT_IN_BODY, info, "Client request http post segment in http body")
 HTTP_MSG(HTTP_REQUEST_INVALID_BODY, error, "Client request a invalid body post")
+HTTP_MSG(HTTP_PARSE_UNKOWN_TRANSFER_ENCODING, error, "Client request uses unknown Transfer-Encoding %s")
+HTTP_MSG(HTTP_PARSE_INVALID_CONTENT_LENGTH, error, "Client request uses unkown content length")
+HTTP_MSG(HTTP_PARSE_UNKOWN_CONTENT_TYPE, error, "Client request uses unkown content type %s")
+HTTP_MSG(HTTP_PARSE_UNKOWN_CONNECTION_TYPE, error, "Client request uses unkown connection type %s")
+HTTP_MSG(HTTP_PARSE_VALUE_ERR, error, "Cannot parse value %s")
+HTTP_MSG(HTTP_REQUEST_KEEP_ALIVE, info, "Client request keep connection alive")
+HTTP_MSG(HTTP_REQUEST_WANT_TO_CLOSE, info,"Client request want to close connection")
 
 // 警告
 HTTP_MSG(HTTP_UNSET_PORT, warn, "Failed to read port configure")

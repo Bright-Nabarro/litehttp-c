@@ -46,6 +46,8 @@ static size_t get_ctx_post_remain(const http_parse_ctx_t* ctx);
 static size_t get_ctx_line_remain(const char* cur, const http_parse_ctx_t* ctx);
 static string_view_t get_ctx_focus_line(const http_parse_ctx_t* ctx);
 
+static http_err_t header_line_update_body_type(const http_header_t* header,
+											   http_parse_ctx_t* ctx);
 /****
  * 解析函数
  ****/
@@ -224,7 +226,7 @@ void http_parse_ctx_free_node(http_parse_ctx_t* node)
 /****
  * Parse
  ****/
-static http_err_t parse_request_line(http_parse_ctx_t* ctx)
+UT_STATIC http_err_t parse_request_line(http_parse_ctx_t* ctx)
 {
 	http_err_t herr = http_success;
 	http_request_t* request = ctx->http_request;
@@ -263,12 +265,12 @@ static http_err_t parse_request_line(http_parse_ctx_t* ctx)
 	}
 	assert(next_token <= ctx->next_line);
 	assert(next_token >= ctx->cur);
-	request->path = string_view_substr(request_line_sv, ctx->cur, token_len);
+	request->path = string_view_substr(request_line_sv, cur_token, token_len);
 
 	// http版本
 	cur_token = next_token;
 	string_view_t version_sv =
-		string_view_substr(request_line_sv, ctx->cur, string_t_npos);
+		string_view_substr(request_line_sv, cur_token, ctx->next_line - 2 - cur_token);
 	request->version = http_match_version(version_sv);
 	if (request->version == http_ver_unkown)
 	{
@@ -278,13 +280,13 @@ static http_err_t parse_request_line(http_parse_ctx_t* ctx)
 	return herr;
 }
 
-static http_err_t parse_header_line(http_parse_ctx_t* ctx)
+UT_STATIC http_err_t parse_header_line(http_parse_ctx_t* ctx)
 {
 	assert(ctx != nullptr);
 	http_err_t herr = http_success;
 	string_view_t header_sv = *cc_last(&ctx->header_list);
 	size_t cur_token = ctx->cur, token_len = 0, next_token = 0;
-	herr = pos_next_token(header_sv, ' ', cur_token, &token_len, &next_token);
+	herr = pos_next_token(header_sv, ':', cur_token, &token_len, &next_token);
 	if (herr != http_success)
 	{
 		return herr;
@@ -299,39 +301,22 @@ static http_err_t parse_header_line(http_parse_ctx_t* ctx)
 	cur_token = next_token;
 	if (string_view_cstr(header_sv)[cur_token] == ' ')
 		++cur_token;
-	new_header.value = string_view_substr(header_sv, cur_token, string_t_npos);
+	string_view_t value_sv = string_view_substr(header_sv, cur_token, string_t_npos);
+	herr = http_hdr_parse_value(&new_header, value_sv);
+	if (herr != http_success) // 退化成未知类型
+	{
+		new_header.field = http_hdr_unkown;
+		new_header.name = key_sv;
+	}
+
 	if (cc_push(&ctx->http_request->header_list, new_header) == nullptr)
 	{
 		log_http_message(HTTP_MALLOC_ERR);
 		return http_err_malloc;
 	}
-	if (new_header.field == http_hdr_content_length)
-	{
-		char buf[string_view_len(new_header.value)+1];
-		string_view_to_buf(new_header.value, buf, sizeof(buf));
-		int body_length = atoi(buf);
-		if (body_length == 0)
-			return http_success;
-		ctx->body_type = http_transfer_body_fixed;
-		ctx->body_length = body_length;
-		log_http_message(HTTP_REQUEST_FIXED_BODY_LEN, body_length);
-		return http_err_request_fixed_body_len;
-	}
-	else if (new_header.field == http_hdr_transfer_encoding)
-	{
-		http_hdr_transfer_encoding_t encoding =
-			http_match_transfer_encoding_value(new_header.value);
-		
-		switch(encoding)
-		{
-		case http_hdr_transfer_encoding_chunked:
-			ctx->body_type = http_transfer_body_chunked;
-			return http_err_request_chunked_body;
-		default:
-			return http_success;
-		}
-	}
-	return http_success;
+
+	header_line_update_body_type(&new_header, ctx);
+	return herr;
 }
 
 /****
@@ -417,3 +402,37 @@ static size_t get_ctx_post_remain(const http_parse_ctx_t* ctx)
 	assert(post_len >= ctx->cur);
 	return post_len - ctx->cur;
 }
+
+static http_err_t header_line_update_body_type(const http_header_t* header,
+											   http_parse_ctx_t* ctx)
+{
+	switch(header->field)
+	{
+	case http_hdr_content_length:
+		if (header->value.has_parsed_type)
+		{
+			ctx->body_type = http_transfer_body_fixed;
+			ctx->body_length = header->value.content.content_length;
+		}
+		break;
+	case http_hdr_transfer_encoding:
+		if (header->value.has_parsed_type
+		 && header->value.transfer_encoding.type == http_transfer_encoding_chunked)
+		{
+			ctx->body_type = http_transfer_body_chunked;
+		}
+		break;
+	case http_hdr_content_type:
+		if (!header->value.has_parsed_type)
+			break;
+		if (header->value.connection.type == http_connection_keep_alive)
+			return http_err_request_keep_alive;
+		else if (header->value.connection.type == http_connection_close)
+			return http_err_request_want_to_close;
+		break;
+	default:
+		break;
+	}
+	return http_success;
+}
+

@@ -12,10 +12,6 @@ typedef struct
 	string_view_t body;
 } http_response_t;
 
-http_err_t http_response_add_header(http_response_t* rep, size_t* capacity,
-									http_header_field_t field,
-									string_view_t value);
-
 http_err_t http_response_to_string(const http_response_t* rep, string_t* post);
 
 string_view_t http_get_simple_response();

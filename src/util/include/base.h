@@ -25,5 +25,13 @@ void log_http_message(http_message_t name, ...);
 							  buf __VA_OPT__(, ) __VA_ARGS__);                 \
 	} while (0)
 
+#define log_http_message_with_1sv(name, sv)                                    \
+	do                                                                         \
+	{                                                                          \
+		char buf[string_view_len(sv) + 1];                                     \
+		string_view_to_buf((sv), buf, sizeof(buf));                            \
+		log_http_message(name, buf);                                           \
+	} while (0)
+
 http_err_t http_signal(int signo, void(*fn)(int));
 

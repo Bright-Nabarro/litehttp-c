@@ -34,7 +34,7 @@ add_compile_options(
 )
 
 # depend end
-
+include(add_project_lib)
 add_subdirectory(extern)
 add_subdirectory(src)
 

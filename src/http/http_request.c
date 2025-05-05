@@ -30,30 +30,5 @@ void http_request_free(http_request_t* req)
 	free(req);
 }
 
-http_err_t http_request_add_header(http_request_t* req, http_header_field_t field,
-								   string_view_t value)
-{
-	http_header_t new_header = { .field = field, .value = value };
-	http_header_t* push_ret = cc_push(&req->header_list, new_header);
-	if (push_ret == nullptr)
-	{
-		return http_err_malloc;
-	}
-
-	return http_success;
-}
-
-http_err_t http_request_add_header_other(http_request_t* req, string_view_t name,
-										 string_view_t value)
-{
-	http_header_t new_header = { .name = name, .value = value };
-	http_header_t* push_ret = cc_push(&req->header_list, new_header);
-	if (push_ret == nullptr)
-	{
-		return http_err_malloc;
-	}
-
-	return http_success;
-}
 
 

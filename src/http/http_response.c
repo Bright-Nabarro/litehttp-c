@@ -29,27 +29,13 @@ http_err_t http_response_to_string(const http_response_t* rep, string_t* post)
 	{
 		string_append_view(post, http_get_header_field_sv(rep->headers[i].field));
 		string_append_cstr(post, ": ");
-		string_append_view(post, rep->headers[i].value);
+		string_append_view(post, rep->headers[i].value.value_sv);
 		string_append_cstr(post, "\r\n");
 	}
 	string_append_cstr(post, "\r\n");
 	string_append_view(post, rep->body);
 	string_append_cstr(post, "\r\n");
 	return http_success;
-}
-
-http_err_t http_response_add_header(http_response_t* rep, size_t* capacity,
-									http_header_field_t field,
-									string_view_t value)
-{
-	http_err_t herr = http_success;
-	herr = http_header_push_back_empty(&rep->headers, &rep->header_len, capacity);
-	if (herr != http_success)
-		return herr;
-	rep->headers[rep->header_len-1].field = field;
-	rep->headers[rep->header_len-1].value = value;
-
-	return herr;
 }
 
 string_view_t http_get_simple_response()

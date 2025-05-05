@@ -4,7 +4,7 @@ set(targets
 )
 
 set(libs
-	util
+	ut_util
 )
 
 add_test_from_targets("${targets}" "${libs}")

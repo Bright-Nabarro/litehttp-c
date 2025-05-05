@@ -1,0 +1,22 @@
+set(src_prefix "${CMAKE_SOURCE_DIR}/src")
+
+function(add_util target_name)
+	file(GLOB src "${src_prefix}/util/*.c")
+	add_library(${target_name} STATIC ${src})
+	target_include_directories(${target_name} PUBLIC "${src_prefix}/util/include")
+	target_link_libraries(${target_name} ctp)
+endfunction()
+
+function(add_http target_name)
+	file(GLOB src "${src_prefix}/http/*.c")
+	add_library(${target_name} STATIC ${src})
+	target_include_directories(${target_name} PUBLIC "${src_prefix}/http/include")
+	target_link_libraries(${target_name} util klib ccontainer)
+endfunction()
+
+function(add_core target_name)
+	file(GLOB src "${src_prefix}/core/*.c")
+	add_library(${target_name} STATIC ${src})
+	target_include_directories(${target_name} PUBLIC "${src_prefix}/core/include")
+	target_link_libraries(${target_name} http toml)
+endfunction()

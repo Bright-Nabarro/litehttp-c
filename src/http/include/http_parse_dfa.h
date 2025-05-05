@@ -23,6 +23,7 @@ void http_parse_ctx_destroy_chain(http_parse_ctx_t** head);
 
 /**
  * @brief 解析post, 放入ctx链表尾部
+ * @return 遇到位置类型的错误有可能返回http_success, 具体需要检查request
  */
 http_err_t http_parse_feed(http_parse_ctx_t** tail, string_view_t post);
 
