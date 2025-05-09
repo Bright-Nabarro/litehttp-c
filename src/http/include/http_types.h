@@ -12,7 +12,6 @@ typedef enum: size_t
 	http_method_unkown,
 } http_method_t;
 
-
 typedef enum
 {
 	http_ver_1_0,

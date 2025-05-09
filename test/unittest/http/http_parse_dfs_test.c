@@ -336,6 +336,96 @@ void test_parse_header_line_single()
 	}
 }
 
+void test_parse_header_line_mixed()
+{
+	{
+		const char headers[] = 
+			"Host: example.com\r\n"
+			"User-Agent: test-agent/1.0\r\n"
+			"Content-Type: application/json\r\n"
+			"Content-Length: 1234\r\n"
+			"Connection: keep-alive\r\n"
+		;
+
+		const char* sheaders[] = {
+			"Host: example.com",
+			"User-Agent: test-agent/1.0",
+			"Content-Type: application/json",
+			"Content-Length: 1234",
+			"Connection: keep-alive"
+		};
+
+		http_header_field_t header_key[] = {
+			http_hdr_host,
+			http_hdr_user_agent,
+			http_hdr_content_type,
+			http_hdr_content_length,
+			http_hdr_connection,
+		};
+
+		http_err_t herr = http_success;
+		http_parse_ctx_t* ctx = nullptr;
+		herr = http_parse_ctx_new(&ctx);
+	    TEST(herr == http_success);
+		string_init_from_cstr(&ctx->post, headers);
+	    ctx->next_line = sizeof(headers) - 1;
+
+		size_t header_size = sizeof(sheaders)/sizeof(sheaders[0]);
+		for (size_t i = 0; i < header_size; ++i)
+		{
+			string_view_t new_header = string_view_from_cstr(sheaders[i]);
+			cc_push(&ctx->header_list, new_header);
+			herr = parse_header_line(ctx);
+			TEST(herr == http_success);
+		}
+		http_request_t* request = ctx->http_request;
+		TEST(cc_size(&request->header_list) == header_size);
+		
+		for (size_t i = 0; i < header_size; ++i)
+		{
+			http_header_t* ret_header = cc_get(&request->header_list, i);
+			TEST(ret_header->field == header_key[i]);
+			switch(header_key[i])
+			{
+			case http_hdr_host:
+				string_view_compare_cstr(ret_header->value.value_sv,
+										 "example.com");
+				TEST(!ret_header->value.has_parsed_type);
+				break;
+			case http_hdr_user_agent:
+				TEST(string_view_compare_cstr(ret_header->value.value_sv,
+										 "test-agent/1.0") == 0);
+				TEST(!ret_header->value.has_parsed_type);
+				break;
+			case http_hdr_content_type:
+				TEST(string_view_compare_cstr(ret_header->value.value_sv,
+										 "application/json") == 0);
+				TEST(ret_header->value.has_parsed_type);
+				TEST(ret_header->value.content_type.major ==
+					 http_content_type_major_application);
+				TEST(ret_header->value.content_type.sub ==
+					 http_content_type_sub_json);
+				break;
+			case http_hdr_content_length:
+				TEST(string_view_compare_cstr(ret_header->value.value_sv,
+					 "1234") == 0);
+				TEST(ret_header->value.has_parsed_type);
+				TEST(ret_header->value.content.content_length == 1234);
+				break;
+			case http_hdr_connection:
+				TEST(string_view_compare_cstr(ret_header->value.value_sv,
+					 "keep-alive") == 0);
+				TEST(ret_header->value.has_parsed_type);
+				TEST(ret_header->value.connection.type ==
+					 http_connection_keep_alive);
+				break;
+			default:
+				assert(false);
+			}
+		}
+	}
+}
+
 int main()
 {
 	logger_init();
@@ -343,5 +433,6 @@ int main()
 	test_http_parse_ctx_feed_base();
 	test_parse_request_line();
 	test_parse_header_line_single();
+	test_parse_header_line_mixed();
 	return main_ret;
 }
