@@ -8,6 +8,7 @@ typedef enum: size_t
 	http_method_get = 0,
 	http_method_head,
 	http_method_post,
+	http_method_put,
 	http_method_max_known,
 	http_method_unkown,
 } http_method_t;

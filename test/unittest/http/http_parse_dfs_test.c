@@ -426,6 +426,102 @@ void test_parse_header_line_mixed()
 	}
 }
 
+void test_http_parse_ctx_feed()
+{
+	{
+		http_parse_ctx_t* ctx = nullptr;
+		http_err_t herr = http_parse_ctx_new(&ctx);
+		TEST(herr == http_success && ctx != nullptr);
+		const char* post_cstr =
+            "GET /index.html HTTP/1.1\r\n"
+            "Host: example.com\r\n"
+            "Connection: close\r\n"
+            "\r\n";
+		
+        string_view_t post = string_view_from_cstr(post_cstr);
+		herr = http_parse_feed(&ctx, post);
+		TEST(herr == http_success);
+		TEST(ctx != nullptr);
+		TEST(ctx->next_ctx == nullptr);
+		http_request_t* request = ctx->http_request;
+		assert(request != nullptr);
+		TEST(request->method == http_method_get);
+		TEST(string_view_compare_cstr(request->path, "/index.html") == 0);
+		TEST(request->version == http_ver_1_1);
+		assert(cc_size(&request->header_list) == 2);
+		http_header_t* header = cc_get(&request->header_list, 0);
+		TEST(header->field == http_hdr_host);
+		TEST(string_view_compare_cstr(header->value.value_sv, "example.com") == 0);
+		header = cc_get(&request->header_list, 1);
+		TEST(header->field == http_hdr_connection);
+		TEST(string_view_compare_cstr(header->value.value_sv, "close") == 0);
+		TEST(string_view_empty(request->body));
+	}
+	// 测试 POST 方法，带有 body
+	{
+		http_parse_ctx_t* ctx = nullptr;
+		http_err_t herr = http_parse_ctx_new(&ctx);
+		TEST(herr == http_success && ctx != nullptr);
+		const char* post_cstr =
+			"POST /submit HTTP/1.1\r\n"
+			"Host: example.org\r\n"
+			"Content-Type: application/x-www-form-urlencoded\r\n"
+			"Content-Length: 12\r\n"
+			"\r\n"
+			"name=abc&x=1";
+
+		string_view_t post = string_view_from_cstr(post_cstr);
+		herr = http_parse_feed(&ctx, post);
+		TEST(herr == http_success);
+		http_request_t* request = ctx->http_request;
+		assert(request != nullptr);
+		TEST(request->method == http_method_post);
+		TEST(string_view_compare_cstr(request->path, "/submit") == 0);
+		TEST(request->version == http_ver_1_1);
+		assert(cc_size(&request->header_list) == 3);
+		http_header_t* header = cc_get(&request->header_list, 1);
+		TEST(header->field == http_hdr_content_type);
+		TEST(string_view_compare_cstr(header->value.value_sv, "application/x-www-form-urlencoded") == 0);
+		header = cc_get(&request->header_list, 2);
+		TEST(header->field == http_hdr_content_length);
+		TEST(string_view_compare_cstr(header->value.value_sv, "12") == 0);
+		TEST(string_view_compare_cstr(request->body, "name=abc&x=1") == 0);
+	}
+
+	// 测试 PUT 方法，带有 JSON body
+	{
+		http_parse_ctx_t* ctx = nullptr;
+		http_err_t herr = http_parse_ctx_new(&ctx);
+		TEST(herr == http_success && ctx != nullptr);
+		const char* put_cstr =
+			"PUT /api/item/42 HTTP/1.1\r\n"
+			"Host: api.example.com\r\n"
+			"Content-Type: application/json\r\n"
+			"Content-Length: 17\r\n"
+			"\r\n"
+			"{\"id\":42,\"v\":100}";
+
+		string_view_t put = string_view_from_cstr(put_cstr);
+		herr = http_parse_feed(&ctx, put);
+		TEST(herr == http_success);
+		http_request_t* request = ctx->http_request;
+		assert(request != nullptr);
+		TEST(request->method == http_method_put);
+		TEST(string_view_compare_cstr(request->path, "/api/item/42") == 0);
+		TEST(request->version == http_ver_1_1);
+		assert(cc_size(&request->header_list) == 3);
+		http_header_t* header = cc_get(&request->header_list, 2);
+		TEST(header->field == http_hdr_content_length);
+		TEST(string_view_compare_cstr(header->value.value_sv, "17") == 0);
+		TEST(string_view_compare_cstr(request->body, "{\"id\":42,\"v\":100}") == 0);
+	}
+
+	// 测试 DELETE 方法，无 body
+	{
+
+	}
+}
+
 int main()
 {
 	logger_init();
@@ -434,5 +530,6 @@ int main()
 	test_parse_request_line();
 	test_parse_header_line_single();
 	test_parse_header_line_mixed();
+	test_http_parse_ctx_feed();
 	return main_ret;
 }

@@ -9,6 +9,7 @@ static const char* http_methods_str[] = {
 	"GET",
 	"HEAD",
 	"POST",
+	"PUT",
 };
 
 static const char* http_header_fields_str[] = {

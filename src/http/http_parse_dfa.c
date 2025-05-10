@@ -44,6 +44,7 @@ static http_err_t pos_next_token(string_view_t view, char c, size_t this_token,
 static size_t get_ctx_post_remain(const http_parse_ctx_t* ctx);
 [[maybe_unused]]
 static size_t get_ctx_line_remain(const char* cur, const http_parse_ctx_t* ctx);
+// do not use it when parsing body
 static string_view_t get_ctx_focus_line(const http_parse_ctx_t* ctx);
 
 static http_err_t header_line_update_body_type(const http_header_t* header,
@@ -123,6 +124,9 @@ wait_hdr:
 		CLRF_ERR_HANDLE(herr, ctx, http_parse_start);
 		if (get_ctx_line(ctx) == 0)
 		{
+			assert(get_ctx_cur(ctx)[0] == '\r');
+			assert(get_ctx_cur(ctx)[1] == '\n');
+			ctx->cur += 2;
 			break;
 		}
 		string_view_t hdr_sv = get_ctx_focus_line(ctx);
@@ -151,15 +155,15 @@ wait_fix_body:
 	ctx->wait_state = http_parse_wait_fix_body;
 	// 下一行指向post尾部
 	ctx->body_cur = 0;
-	ctx->post_full_length = ctx->body_cur + ctx->body_length;
+	ctx->post_full_length = ctx->cur + ctx->body_length;
 	// 出现拆包状况
 	if (ctx->post_full_length > string_len(&ctx->post))
 	{
 		log_http_message(HTTP_REQUEST_TCP_SEGMENT_IN_BODY);
 		return http_err_request_tcp_segment_in_body;
 	}
-	ctx->next_line += ctx->body_length;
-	ctx->body_view = get_ctx_focus_line(ctx);
+	ctx->next_line = ctx->cur + ctx->body_length;
+	ctx->body_view = string_subview(&ctx->post, ctx->cur, ctx->next_line - ctx->cur);
 	assert(string_view_len(ctx->body_view) == ctx->body_length);
 	
 	ctx->http_request->body = ctx->body_view;
@@ -285,13 +289,12 @@ UT_STATIC http_err_t parse_header_line(http_parse_ctx_t* ctx)
 	assert(ctx != nullptr);
 	http_err_t herr = http_success;
 	string_view_t header_sv = *cc_last(&ctx->header_list);
-	size_t cur_token = ctx->cur, token_len = 0, next_token = 0;
+	size_t cur_token = 0, token_len = 0, next_token = 0;
 	herr = pos_next_token(header_sv, ':', cur_token, &token_len, &next_token);
 	if (herr != http_success)
 	{
 		return herr;
 	}
-	assert(next_token >= ctx->cur);
 	http_header_t new_header = {0};
 	string_view_t key_sv = string_view_substr(header_sv, cur_token, token_len);
 	new_header.field = http_match_header_field(key_sv);
