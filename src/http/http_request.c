@@ -10,7 +10,9 @@ http_err_t http_request_new(http_request_t** req)
 	*req = calloc(1, sizeof(http_request_t));
 	if (*req == nullptr)
 		goto err;
+	string_init(&(*req)->path);
 	cc_init(&(*req)->header_list);
+	string_init(&(*req)->body);
 	if ((*req)->header_list == nullptr)
 		goto cleanup;
 	return http_success;

@@ -1,5 +1,5 @@
 # 缺陷
-- [x] `camke` 需要添加`khash`依赖
+- [x] `cmake` 需要添加`khash`依赖
 - [ ] `http_response` 使用`cc_vec`包装
 - [ ] `c_thread_pool`使用了`FetchContent`, 编译耗时，使用`git`子模块替代
 - [ ] `malloc` / `realloc` 错误时会将消息传递到logger, 导致更多的malloc分配，
@@ -10,9 +10,10 @@
 # 功能需求
 - [x] `http request` 回应
 - [x] 添加`int_to_string_t`函数
-- [ ] (耗时) 添加`tcp`粘包，拆包处理
-- [ ] `keepalive` 未实现
-- [ ] `http head method` 实现
+- [x] (耗时) 添加`tcp`粘包，拆包处理
+- [x] `keepalive` 实现
+- [x] `http head method` 实现
+- [ ] `http request`对于分块传输的解析
 - [ ] `toml`对于ip配置扩展为列表
 - [ ] `rio_write` 和 `rio_read`
 - [ ] `uitl/base.h` 添加各种错误处理宏，简化代码
@@ -28,6 +29,7 @@
 - [x] `http_err_t`对于一些方法失败的名称改成`http_err`前缀
 - [x] `configure.h`中方法添加`config_`前缀
 - [x] `http`中部分方法命名随意，需要规范前缀为`http`
+- [ ] `http types`中的方法写成`def`形式
 - [ ] `http_request` 和 `http_response` 的 `header_t` 用`cc_vec`封装
 - [ ] 明确`http_parser`解析状态机，划分责任
 - [ ] `http_parser` 将上下文类暴露到接口，配合`tcp`粘包，拆包实现, 其接口直接重构
@@ -36,5 +38,6 @@
 
 # 待测试
 - [x] `string_view_t` 新增功能
-- [ ] `http`
 - [ ] `core`
+- [ ] `http` tcp粘包解析测试
+- [ ] `http` tcp拆包解析测试

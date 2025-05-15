@@ -55,6 +55,7 @@ int string_compare_cstr(const string_t* lhs, const char* rhs);
 
 bool int_to_string_t(string_t* s, int d);
 
+bool string_substr(const string_t* str, string_t* substr, size_t pos, size_t len);
 string_view_t string_subview(const string_t* str, size_t pos, size_t len);
 
 // --- string_view_t ----

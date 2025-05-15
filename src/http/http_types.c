@@ -56,44 +56,6 @@ string_view_t http_get_header_field_sv(http_header_field_t method)
 	return string_view_from_cstr(cstr);
 }
 
-http_err_t header_initial(http_header_t** header, size_t* header_size,
-								 size_t* capacity)
-{
-	assert(header != nullptr);
-	*capacity = 10;
-	*header_size = 0;
-	*header = calloc(*capacity, sizeof(http_header_t));
-	if (*header == nullptr)
-	{
-		log_http_message_with_errno(HTTP_MALLOC_ERR);
-		return http_err_malloc;
-	}
-
-	return http_success;
-}
-
-http_err_t http_header_push_back_empty(http_header_t** header,
-		size_t* header_size, size_t* capacity)
-{
-	assert(header != nullptr);
-	if (*header_size == *capacity)
-	{
-		*capacity *= 2;
-		http_header_t* new_hdr =
-			realloc(*header, *capacity * sizeof(http_header_t));
-		if (new_hdr == nullptr)
-		{
-			log_http_message_with_errno(HTTP_REALLOC_ERR);
-			return http_err_realloc;
-		}
-		*header = new_hdr;
-	}
-
-	++*header_size;
-	assert(*header_size <= *capacity);
-	return http_success;
-}
-
 http_method_t http_match_method(string_view_t sv)
 {
 	for (size_t i = 0; i < sizeof(http_methods_str) / sizeof(http_methods_str[0]); ++i)

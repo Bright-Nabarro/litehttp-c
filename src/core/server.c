@@ -123,3 +123,19 @@ void handle_server_fd(void* vargs)
 	CALL_BACK_RETURN(args->pherr, herr);
 }
 
+http_err_t http_send_response(const client_data_t* client,
+							  const http_response_t* response)
+{
+	string_t post = {0};
+	http_response_to_string(response, &post);
+
+	ssize_t writebytes =
+	write(client->fd, string_cstr(&post), string_len(&post));
+	log_debug_message("Server Write %d bytes to client");
+	if (writebytes < 0)
+	{
+		log_http_message_with_errno(HTTP_WRITE_ERR);
+		return http_err_write;
+	}
+	return http_success;
+}

@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <string.h>
+#include "string_t.h"
 
 #include "error_code.h"
 
@@ -34,4 +35,3 @@ void log_http_message(http_message_t name, ...);
 	} while (0)
 
 http_err_t http_signal(int signo, void(*fn)(int));
-

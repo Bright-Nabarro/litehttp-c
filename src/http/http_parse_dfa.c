@@ -166,7 +166,12 @@ wait_fix_body:
 	ctx->body_view = string_subview(&ctx->post, ctx->cur, ctx->next_line - ctx->cur);
 	assert(string_view_len(ctx->body_view) == ctx->body_length);
 	
-	ctx->http_request->body = ctx->body_view;
+	if (!string_init_from_string_view(&ctx->http_request->body, ctx->body_view))
+	{
+		log_http_message(HTTP_MALLOC_ERR);
+		return http_err_malloc;
+	}
+
 	goto end;
 wait_clen:
 	ctx->wait_state = http_parse_wait_clen;
@@ -211,6 +216,7 @@ bool http_parse_pop_request_and_release(http_parse_ctx_t** head,
 	}
 
 	*out_req = (*head)->http_request;
+	(*head)->http_request = nullptr;
 	http_parse_ctx_t* tmp = *head;
 	*head = (*head)->next_ctx;
 	http_parse_ctx_free_node(tmp);
@@ -269,7 +275,12 @@ UT_STATIC http_err_t parse_request_line(http_parse_ctx_t* ctx)
 	}
 	assert(next_token <= ctx->next_line);
 	assert(next_token >= ctx->cur);
-	request->path = string_view_substr(request_line_sv, cur_token, token_len);
+	string_view_t path_sv = string_view_substr(request_line_sv, cur_token, token_len);
+	if (!string_init_from_string_view(&request->path, path_sv))
+	{
+		log_http_message(HTTP_MALLOC_ERR);
+		return http_err_malloc;
+	}
 
 	// http版本
 	cur_token = next_token;

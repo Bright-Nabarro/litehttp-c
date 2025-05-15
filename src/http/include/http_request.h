@@ -7,10 +7,10 @@
 typedef struct 
 {
 	http_method_t method;
-	string_view_t path;
+	string_t path;
 	http_version_t version;
 	cc_vec(http_header_t) header_list;
-	string_view_t body;
+	string_t body;
 } http_request_t;
 
 http_err_t http_request_new(http_request_t** req);

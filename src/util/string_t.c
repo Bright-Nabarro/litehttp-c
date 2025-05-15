@@ -507,6 +507,14 @@ bool int_to_string_t(string_t* s, int d)
 	return string_init_from_cstr(s, digit_buf);
 }
 
+bool string_substr(const string_t* str, string_t* substr, size_t pos, size_t len)
+{
+	assert(substr != nullptr);
+	string_view_t sv = string_subview(str, pos, len);
+	string_clear(substr);
+	return string_init_from_string_view(substr, sv);
+}
+
 string_view_t string_subview(const string_t* str, size_t pos, size_t len)
 {
 	string_view_t sv = string_view_from_string(str);

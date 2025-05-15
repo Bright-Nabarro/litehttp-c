@@ -8,6 +8,8 @@
 #include "string_t.h"
 #include <stdio.h>
 #include <sys/epoll.h>
+#include "server.h"
+#include <assert.h>
 
 static
 http_err_t read_client(string_t* rec_str, client_data_t* usrdata);
@@ -20,8 +22,6 @@ void handle_client_fd(void* vargs)
 	http_err_t herr = http_success;
 	log_http_message(HTTP_REPORT_CLIENT_INFO, string_cstr(&usrdata->ip),
 					 usrdata->port);
-
-	http_request_t http_request;
 
 	string_t receive_post;
 	// 读取客户端, 写入receive_post
@@ -36,20 +36,23 @@ void handle_client_fd(void* vargs)
 	if (herr == http_err_request_fatal)
 		goto err;
 
-closefd:
 	http_request_t* request = nullptr;
 	while (http_parse_pop_request_and_release(&usrdata->ctx_beg, &request))
 	{
-		herr = handle_http_request(&http_request, usrdata);
-		if (herr != http_success)
-			goto err;
+		http_response_t* response = nullptr;
+		herr = handle_http_request(request, &response);
+		HERR_TRANSFER(herr, goto err);
+		assert(response != nullptr);
+		herr = http_send_response(usrdata, response);
+		HERR_TRANSFER(herr, goto err);
 	}
 	
 	CALL_BACK_RETURN(args->pherr, herr);
 
-	if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, epoll_fd, nullptr) < 0)
+closefd:
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, usrdata->fd, nullptr) < 0)
 	{
-		log_http_message(HTTP_EPOLL_CTL_DEL_ERR);
+		log_http_message_with_errno(HTTP_EPOLL_CTL_DEL_ERR);
 		herr = http_err_epoll_ctl_del;
 	}
 	close(epoll_fd);

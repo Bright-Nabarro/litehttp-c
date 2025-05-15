@@ -81,7 +81,7 @@ void test_parse_request_line()
 		http_request_t* ret_request = ctx.http_request;
 		TEST(ret_request->version == http_ver_1_1);
 		TEST(ret_request->method == http_method_get);
-		TEST(string_view_compare_cstr(ret_request->path, "/index.html") == 0);
+		TEST(string_compare_cstr(&ret_request->path, "/index.html") == 0);
 
 		http_request_free(ret_request);
 	}
@@ -102,7 +102,7 @@ void test_parse_request_line()
         http_request_t* ret_request = ctx.http_request;
         TEST(ret_request->version == http_ver_1_0);
         TEST(ret_request->method == http_method_head);
-        TEST(string_view_compare_cstr(ret_request->path, "/test/page") == 0);
+        TEST(string_compare_cstr(&ret_request->path, "/test/page") == 0);
 
         http_request_free(ret_request);
     }
@@ -123,7 +123,7 @@ void test_parse_request_line()
         http_request_t* ret_request = ctx.http_request;
         TEST(ret_request->version == http_ver_1_1);
         TEST(ret_request->method == http_method_post);
-        TEST(string_view_compare_cstr(ret_request->path, "/api/v1/update") == 0);
+        TEST(string_compare_cstr(&ret_request->path, "/api/v1/update") == 0);
 
         http_request_free(ret_request);
     }
@@ -446,7 +446,7 @@ void test_http_parse_ctx_feed()
 		http_request_t* request = ctx->http_request;
 		assert(request != nullptr);
 		TEST(request->method == http_method_get);
-		TEST(string_view_compare_cstr(request->path, "/index.html") == 0);
+		TEST(string_compare_cstr(&request->path, "/index.html") == 0);
 		TEST(request->version == http_ver_1_1);
 		assert(cc_size(&request->header_list) == 2);
 		http_header_t* header = cc_get(&request->header_list, 0);
@@ -455,7 +455,7 @@ void test_http_parse_ctx_feed()
 		header = cc_get(&request->header_list, 1);
 		TEST(header->field == http_hdr_connection);
 		TEST(string_view_compare_cstr(header->value.value_sv, "close") == 0);
-		TEST(string_view_empty(request->body));
+		TEST(string_empty(&request->body));
 	}
 	// 测试 POST 方法，带有 body
 	{
@@ -476,7 +476,7 @@ void test_http_parse_ctx_feed()
 		http_request_t* request = ctx->http_request;
 		assert(request != nullptr);
 		TEST(request->method == http_method_post);
-		TEST(string_view_compare_cstr(request->path, "/submit") == 0);
+		TEST(string_compare_cstr(&request->path, "/submit") == 0);
 		TEST(request->version == http_ver_1_1);
 		assert(cc_size(&request->header_list) == 3);
 		http_header_t* header = cc_get(&request->header_list, 1);
@@ -485,7 +485,7 @@ void test_http_parse_ctx_feed()
 		header = cc_get(&request->header_list, 2);
 		TEST(header->field == http_hdr_content_length);
 		TEST(string_view_compare_cstr(header->value.value_sv, "12") == 0);
-		TEST(string_view_compare_cstr(request->body, "name=abc&x=1") == 0);
+		TEST(string_compare_cstr(&request->body, "name=abc&x=1") == 0);
 	}
 
 	// 测试 PUT 方法，带有 JSON body
@@ -507,13 +507,13 @@ void test_http_parse_ctx_feed()
 		http_request_t* request = ctx->http_request;
 		assert(request != nullptr);
 		TEST(request->method == http_method_put);
-		TEST(string_view_compare_cstr(request->path, "/api/item/42") == 0);
+		TEST(string_compare_cstr(&request->path, "/api/item/42") == 0);
 		TEST(request->version == http_ver_1_1);
 		assert(cc_size(&request->header_list) == 3);
 		http_header_t* header = cc_get(&request->header_list, 2);
 		TEST(header->field == http_hdr_content_length);
 		TEST(string_view_compare_cstr(header->value.value_sv, "17") == 0);
-		TEST(string_view_compare_cstr(request->body, "{\"id\":42,\"v\":100}") == 0);
+		TEST(string_compare_cstr(&request->body, "{\"id\":42,\"v\":100}") == 0);
 	}
 
 	// 测试 DELETE 方法，无 body

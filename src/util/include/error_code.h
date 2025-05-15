@@ -35,5 +35,14 @@ void print_err_exit(http_err_t ec, const char* msg);
 	} while (0)
 
 #define ERR_HANDLER_PTR(ret, next_receive, err_msg, ...)                       \
-	ERR_HANDLER_BOOL((ret != nullptr), next_receive, err_msg,                  \
+	ERR_HANDLER_BOOL(((ret) != nullptr), next_receive, err_msg,                \
 					 __VA_OPT__(, ) __VA_ARGS__)
+
+#define HERR_TRANSFER(herr, next_receive)                                      \
+	do                                                                         \
+	{                                                                          \
+		if (herr != http_success)                                              \
+		{                                                                      \
+			next_receive;                                                      \
+		}                                                                      \
+	} while (0)

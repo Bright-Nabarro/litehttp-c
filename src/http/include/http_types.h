@@ -120,9 +120,6 @@ typedef struct
 const char** http_get_methods();
 size_t http_get_methods_len();
 
-http_err_t header_initial(http_header_t** header, size_t* header_size,
-								 size_t* capacity);
-
 http_method_t http_match_method(string_view_t sv);
 
 http_version_t http_match_version(string_view_t sv);
@@ -135,9 +132,6 @@ http_err_t http_hdr_parse_value(http_header_t* header, string_view_t value_sv);
 
 http_hdr_transfer_encoding_t
 http_match_transfer_encoding_value(string_view_t sv);
-
-http_err_t http_header_push_back_empty(http_header_t** header, size_t* header_size,
-								  size_t* capacity);
 
 http_err_t http_set_status(int code, http_status_t* status);
 
